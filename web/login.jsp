@@ -12,15 +12,18 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <form name="form" action="Controlador" method="POST" enctype="multipart/form-data">
-                <h1>Login</h1>
+       <h1>Login </h1>
+        <div class="contenedor">
+            <form name="form" action="Controlador" method="POST" enctype="multipart/form-data">
+                
                 <label>DNI:</label>
                 <input type="text" name="dni" required>
-                <label>Contraseña:</label>
+                <label>Contraseña:</label>
                 <input type="password" name="password" required>
                 <input type="submit" name="enviar" value="Enviar">
-                <p>¿No estás registrado?</p>
-                <a href="registro.php"><input type="button" class="boton-registro" name="Registrar" value="Registrar"/></a>
-            </form>
+                <p>¿No estás registrado?</p>
+                <button type="submit" name="enviar" value="Registrar" name="Registrar">Registrar</button>
+               
+            </form>
     </body>
 </html>

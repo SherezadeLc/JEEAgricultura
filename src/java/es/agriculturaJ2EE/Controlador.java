@@ -1,12 +1,14 @@
 package es.agriculturaJ2EE;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -14,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-@WebServlet("/Controlador")
 public class Controlador extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -32,46 +33,42 @@ public class Controlador extends HttpServlet {
 
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        
+        
+        try {
 
-        if (action == null) {
-            response.sendRedirect("index.html");
-            return;
-        }
+            RequestDispatcher rd = null;
+            
+            // Recojo el value de los botones de login y registro y en función de cuál se le de entra en uno y te manda a una cosa o a otra
+            String botonSeleccionado = request.getParameter("enviar");
+            //aqui comprueba si es entrar lo que se ha guardado en la variable y si es lo que se quiere que en este caso es entrar entra en el if
+            if ("Entrar".equals(botonSeleccionado)) {
+                // Aseguramos que la ruta esté correcta
+                rd = getServletContext().getRequestDispatcher("/menu.jsp");
+                
+                // Realizamos el forward a la página 'menu.jsp'
+                rd.forward(request, response);
+            }
+            if ("Registrar".equals(botonSeleccionado)) {
+                // Aseguramos que la ruta esté correcta
+                rd = getServletContext().getRequestDispatcher("/registro.jsp");
+                
+                // Realizamos el forward a la página 'menu.jsp'
+                rd.forward(request, response);
+            }
+            if ("Salir".equals(botonSeleccionado)) {
+                // Aseguramos que la ruta esté correcta
+                rd = getServletContext().getRequestDispatcher("/login.jsp");
+                
+                // Realizamos el forward a la página 'menu.jsp'
+                rd.forward(request, response);
+            }
+            
 
-        switch (action) {
-            case "login":
-                login(request, response);
-                break;
-            case "registro":
-                registro(request, response);
-                break;
-            case "cambiarContraseña":
-                cambiarContraseña(request, response);
-                break;
-            case "listarParcelas":
-                listarParcelas(request, response);
-                break;
-            case "agregarParcela":
-                agregarParcela(request, response);
-                break;
-            case "listarMaquinas":
-                listarMaquinas(request, response);
-                break;
-            case "agregarMaquina":
-                agregarMaquina(request, response);
-                break;
-            case "crearTrabajo":
-                crearTrabajo(request, response);
-                break;
-            case "listarAgricultores":
-                listarAgricultores(request, response);
-                break;
-            case "agregarAgricultor":
-                agregarAgricultor(request, response);
-                break;
-            default:
-                response.sendRedirect("index.html");
-                break;
+        } finally {
+            out.close();
         }
     }
 
