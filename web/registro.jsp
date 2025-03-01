@@ -12,6 +12,25 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>Registro</h1>
+        
+         <form method="POST" action="Controlador">
+                <label>Nombre:</label>
+                <input type="text" name="nombre" required>
+                <label>Apellidos:</label>
+                <input type="text" name="apellidos" required>
+                <label>DNI:</label>
+                <input type="text" name="dni" required>
+                <label>Id Catastro:</label>
+                <input type="text" name="id_catastro" required>
+                <label>Número Parcela:</label>
+                <input type="text" name="numero_parcela" required>
+                <label>Latitud:</label>
+                <input type="text" name="latitud" required>
+                <label>Longitud:</label>
+                <input type="text" name="longitud" required>
+                <label>Contraseña:</label>
+                <input type="password" name="password" required>
+                <input type="submit" name="enviar" value="Confirmar">
+            </form>
     </body>
 </html>

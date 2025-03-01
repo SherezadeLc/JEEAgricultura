@@ -35,37 +35,38 @@ public class Controlador extends HttpServlet {
         String action = request.getParameter("action");
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
-        
+
         try {
 
             RequestDispatcher rd = null;
-            
+            String ruta = "";
             // Recojo el value de los botones de login y registro y en función de cuál se le de entra en uno y te manda a una cosa o a otra
             String botonSeleccionado = request.getParameter("enviar");
             //aqui comprueba si es entrar lo que se ha guardado en la variable y si es lo que se quiere que en este caso es entrar entra en el if
             if ("Entrar".equals(botonSeleccionado)) {
+                login(request, response);
+
                 // Aseguramos que la ruta esté correcta
-                rd = getServletContext().getRequestDispatcher("/menu.jsp");
-                
-                // Realizamos el forward a la página 'menu.jsp'
-                rd.forward(request, response);
+                ruta = "/menu.jsp";
+
             }
             if ("Registrar".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
-                rd = getServletContext().getRequestDispatcher("/registro.jsp");
-                
-                // Realizamos el forward a la página 'menu.jsp'
-                rd.forward(request, response);
+                ruta = "/registro.jsp";
+
             }
             if ("Salir".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
-                rd = getServletContext().getRequestDispatcher("/login.jsp");
-                
-                // Realizamos el forward a la página 'menu.jsp'
-                rd.forward(request, response);
+                ruta = "/login.jsp";
+
             }
-            
+            if ("Confirmar".equals(botonSeleccionado)) {
+                String nombre = request.getParameter("nombre");
+                String contraseña = request.getParameter("contrasena");
+
+            }
+            rd = getServletContext().getRequestDispatcher(ruta);
+            rd.forward(request, response);
 
         } finally {
             out.close();
