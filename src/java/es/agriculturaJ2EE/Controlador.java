@@ -190,14 +190,37 @@ public class Controlador extends HttpServlet {
     }
 
     private void agregarMaquina(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String nombre = request.getParameter("nombre");
+        // 1. Obtener el tipo de máquina seleccionado en el formulario
+        String tipoMaquina = request.getParameter("tipo_maquina");
+
+        // 2. Verificar que el usuario haya seleccionado una opción
+        if (tipoMaquina == null || tipoMaquina.isEmpty()) {
+            response.sendRedirect("agregar_maquina.jsp?error=Debe seleccionar un tipo de máquina");
+            return; // Detiene la ejecución del método
+        }
+
+        // 3. Conectar a la base de datos
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO maquinas (nombre) VALUES (?)");
-            stmt.setString(1, nombre);
-            stmt.executeUpdate();
-            response.sendRedirect("Controlador?action=listarMaquinas");
+
+            // 4. Crear la consulta SQL para insertar la máquina
+            String sqlInsertar = "INSERT INTO maquina (tipo_maquina) VALUES (?)";
+            PreparedStatement stmt = conn.prepareStatement(sqlInsertar);
+            stmt.setString(1, tipoMaquina);
+
+            // 5. Ejecutar la consulta
+            int filasAfectadas = stmt.executeUpdate();
+
+            // 6. Verificar si se insertó correctamente
+            if (filasAfectadas > 0) {
+                response.sendRedirect("agregar_maquina.jsp?mensaje=Máquina añadida correctamente");
+            } else {
+                response.sendRedirect("agregar_maquina.jsp?error=No se pudo agregar la máquina");
+            }
+
         } catch (Exception e) {
+            // 7. Manejar errores y mostrar mensaje de error
             e.printStackTrace();
+            response.sendRedirect("agregar_maquina.jsp?error=Error en la base de datos");
         }
     }
 
@@ -233,41 +256,56 @@ public class Controlador extends HttpServlet {
     }
 
     private void agregarAgricultor(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // 1. Obtener los datos enviados desde el formulario
         String nombre = request.getParameter("nombre");
         String dni = request.getParameter("dni");
         String contrasena = request.getParameter("contrasena");
 
-        if (nombre == null || dni == null || contrasena == null || nombre.isEmpty() || dni.isEmpty() || contrasena.isEmpty()) {
+        // 2. Verificar que los campos no estén vacíos
+        if (nombre == null || nombre.isEmpty()
+                || dni == null || dni.isEmpty()
+                || contrasena == null || contrasena.isEmpty()) {
+
             response.sendRedirect("añadir_agricultores.jsp?error=Todos los campos son obligatorios");
-            return;
+            return; // Detener la ejecución del método
         }
 
+        // 3. Conectar a la base de datos
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            // Verificar si el DNI ya está registrado
-            PreparedStatement checkStmt = conn.prepareStatement("SELECT COUNT(*) FROM agricultores WHERE dni = ?");
+
+            // 4. Verificar si el DNI ya existe en la base de datos
+            String sqlVerificar = "SELECT COUNT(*) FROM agricultores WHERE dni = ?";
+            PreparedStatement checkStmt = conn.prepareStatement(sqlVerificar);
             checkStmt.setString(1, dni);
             ResultSet rs = checkStmt.executeQuery();
-            rs.next();
+            rs.next(); // Mover el cursor al primer resultado
+
             if (rs.getInt(1) > 0) {
                 response.sendRedirect("añadir_agricultores.jsp?error=El DNI ya está registrado");
                 return;
             }
 
-            // Insertar el nuevo agricultor
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO agricultores (nombre, dni, contrasena) VALUES (?, ?, ?)");
+            // 5. Insertar el agricultor en la base de datos
+            String sqlInsertar = "INSERT INTO agricultores (nombre, dni, contrasena) VALUES (?, ?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(sqlInsertar);
             stmt.setString(1, nombre);
             stmt.setString(2, dni);
             stmt.setString(3, contrasena);
 
+            // 6. Ejecutar la consulta
             int filasAfectadas = stmt.executeUpdate();
+
+            // 7. Comprobar si la inserción fue exitosa
             if (filasAfectadas > 0) {
                 response.sendRedirect("añadir_agricultores.jsp?mensaje=Agricultor añadido correctamente");
             } else {
                 response.sendRedirect("añadir_agricultores.jsp?error=No se pudo añadir el agricultor");
             }
+
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("añadir_agricultores.jsp?error=Error en la base de datos");
         }
     }
+
 }
