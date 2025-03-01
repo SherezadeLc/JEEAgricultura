@@ -20,6 +20,7 @@ import org.hibernate.validator.internal.util.Contracts;
 
 public class Controlador extends HttpServlet {
 
+    private static String MENU = "/menu.jsp";
     private static String URL = "jdbc:mysql://localhost:3306/agricultura";
     private static String USER = "root";
     private static String PASSWORD = "";
@@ -38,7 +39,7 @@ public class Controlador extends HttpServlet {
         PrintWriter out = response.getWriter();
         /*Creamos una instancia de la clase conexion*/
         Conexion conexion = new Conexion();
-        HttpSession session = request.getSession(true);
+        HttpSession session = request.getSession();
 
         try {
 
@@ -48,50 +49,62 @@ public class Controlador extends HttpServlet {
             String botonSeleccionado = request.getParameter("enviar");
             //aqui comprueba si es entrar lo que se ha guardado en la variable y si es lo que se quiere que en este caso es entrar entra en el if
             if ("Entrar".equals(botonSeleccionado)) {
-                //este es en caso de cliente
+                // Obtener credenciales del request
                 String dni = request.getParameter("dni");
                 String contrasena = request.getParameter("password");
 
-                /*Usamos el objeto de Tipo Connection para conectar a la bbdd y usamos el  metodo conectarBd*/
+// Conectar a la base de datos
                 conexion.conectarBaseDatos();
 
-                ResultSet resultados = conexion.loginCliente(dni, contrasena);
-                ResultSet resultado = conexion.loginAgricultor(dni, contrasena);
-                ResultSet resultadoAdmin = conexion.loginAdministrador(dni, contrasena);
+// Obtener la sesión
+                ResultSet resultados = null;
+                ResultSet resultado = null;
+                ResultSet resultadoAdmin = null;
+
                 try {
-                    String rol = null, nombrePers = null, idUsuario = null;
-                    if (resultados.next()) {
-                        rol = resultados.getString("rol");
+                    // Realizar consultas
+                    resultados = conexion.loginCliente(dni, contrasena);
+                    resultado = conexion.loginAgricultor(dni, contrasena);
+                    resultadoAdmin = conexion.loginAdministrador(dni, contrasena);
+
+                    String rol = null, nombrePers = null;
+
+                    if (resultados != null && resultados.next()) {
+                        rol = "cliente";
                         nombrePers = resultados.getString("nombre");
-                        idUsuario = resultados.getString("id_usuario");
-                    } else if (resultado.next()) {
-                        rol = resultado.getString("rol");
+                        
+                        
+                    } else if (resultado != null && resultado.next()) {
+                        rol = "agricultor";
                         nombrePers = resultado.getString("nombre");
-                        idUsuario = resultado.getString("id_usuario");
-                    } else if (resultadoAdmin.next()) {
-                        rol = resultadoAdmin.getString("rol");
+                        
+                    } else if (resultadoAdmin != null && resultadoAdmin.next()) {
+                        rol = "admin";
                         nombrePers = resultadoAdmin.getString("nombre");
-                        idUsuario = resultadoAdmin.getString("id_usuario");
+                        
+                        
                     }
 
                     if (rol != null) {
                         session.setAttribute("rol", rol);
                         session.setAttribute("nombre", nombrePers);
-                        session.setAttribute("id_usuario", idUsuario);
+                        
 
                         System.out.println("¡Credenciales válidas!");
                         System.out.println(rol);
                         System.out.println(nombrePers);
-                        System.out.println(idUsuario);
+                        
 
-                        if ("cliente".equals(rol) || "agricultor".equals(rol) || "admin".equals(rol)) {
-                            ruta = "/menu.jsp";
-                        }
+                        ruta = MENU;
+                    } else {
+                        System.out.println("¡Credenciales inválidas!");
+                        session.invalidate(); // Destruir sesión si es inválido
+                        ruta = "/login.jsp";
                     }
 
-                } catch (SQLException ex) {
-                    // Manejar la excepción aquí
-                    ex.printStackTrace(); // Imprimir la traza de la excepción (solo para propósitos de depuración)
+                } catch (SQLException e) {
+                    e.printStackTrace();
+
                 }
 
             } else if ("Registrar".equals(botonSeleccionado)) {

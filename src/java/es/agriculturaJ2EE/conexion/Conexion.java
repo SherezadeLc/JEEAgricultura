@@ -19,25 +19,23 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
-
 public class Conexion extends HttpServlet {
 
     public static Connection getConnection() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-  Connection conexion;
-  
-  private String url;
-  private String usuario;
-  private String contrasena;
-  
-  public Conexion(){
-      this.url="jdbc:mysql://localhost/agriculturaj2ee";
-      this.usuario="root";
-      this.contrasena="";
-       try {
+    Connection conexion;
+
+    private String url;
+    private String usuario;
+    private String contrasena;
+
+    public Conexion() {
+        this.url = "jdbc:mysql://localhost/agriculturaj2ee";
+        this.usuario = "root";
+        this.contrasena = "";
+        try {
             /*Cargamos el driver JDBC para permitir una comunicacion con la base de datos*/
             Class.forName("com.mysql.jdbc.Driver").newInstance();
 
@@ -54,44 +52,45 @@ public class Conexion extends HttpServlet {
             System.err.println("Error: No se pudo acceder.");
 
         }
-  }
-  public void conectarBaseDatos(){
-      try{
-          conexion = DriverManager.getConnection(this.url, this.usuario, this.contrasena);
-      }catch (SQLException ex) {
+    }
+
+    public void conectarBaseDatos() {
+        try {
+            conexion = DriverManager.getConnection(this.url, this.usuario, this.contrasena);
+        } catch (SQLException ex) {
             System.err.println("Error al conectar a la base de datos: ");
         }
-  }
-  public void desconectarBaseDatos(){
-      try {
+    }
+
+    public void desconectarBaseDatos() {
+        try {
             /*Se cierra la conexion*/
             conexion.close();
 
         } catch (SQLException ex) {
             System.err.println("Error al desconectar a la base de datos");
         }
-  }
-  
-  public boolean insertarCliente(String nombre,String dni,String contrasena,String idCatastro,String numero_parcela,String latitud,String longitud){
-       /*Usamos el metodo encargado de iniciar la conexion con la BD*/
+    }
+
+    public boolean insertarCliente(String nombre, String dni, String contrasena, String idCatastro, String numero_parcela, String latitud, String longitud) {
+        /*Usamos el metodo encargado de iniciar la conexion con la BD*/
         conectarBaseDatos();
-      try{
+        try {
             String sqlStr = "INSERT INTO cliente (dni,nombre, contrasena,id_catastro) VALUES (?, ?,?,?)";
             String sqlStr1 = "INSERT INTO parcela (id_catastro, numero_parcela) VALUES  (?, ?)";
             String sqlStr2 = "INSERT INTO puntos (numero_parcela, latitud, longitud) VALUES (?, ?,?)";
             PreparedStatement preparedStatement = conexion.prepareStatement(sqlStr);
             PreparedStatement preparedStatement1 = conexion.prepareStatement(sqlStr1);
             PreparedStatement preparedStatement2 = conexion.prepareStatement(sqlStr2);
-            
-            
+
             preparedStatement.setString(1, dni);
             preparedStatement.setString(2, nombre);
             preparedStatement.setString(3, contrasena);
             preparedStatement.setString(4, idCatastro);
-            
+
             preparedStatement1.setString(1, idCatastro);
             preparedStatement1.setString(2, numero_parcela);
-            
+
             preparedStatement2.setString(1, numero_parcela);
             preparedStatement2.setString(2, latitud);
             preparedStatement2.setString(3, longitud);
@@ -105,65 +104,60 @@ public class Conexion extends HttpServlet {
             preparedStatement1.close();
             //Cerramos los recursos
             preparedStatement2.close();
-           return true;
+            return true;
         } catch (SQLException e) {
-            
+
             return false;
         }
-      
-  }
-  
-  
-  public ResultSet loginCliente(String dni,String contrasena){
-      conectarBaseDatos();
-      
-       /*Creamos un objeto statement*/
-        Statement stmt;
-        try{
-             stmt = conexion.createStatement();
-             String sqlStr ="SELECT * FROM cliente WHERE dni= '" + dni +"' AND contrasena= '"+ contrasena +"'";
-             ResultSet rset = stmt.executeQuery(sqlStr);
-              return rset;
-        }
-      catch (SQLException ex) {
-            return null;
-        }
-      
-  }
-  public ResultSet loginAgricultor(String dni,String contrasena){
-      conectarBaseDatos();
-      
-       /*Creamos un objeto statement*/
-        Statement stmt;
-        try{
-             stmt = conexion.createStatement();
-             String sqlStr ="SELECT * FROM agricultor WHERE dni= '"+ dni +"' AND contrasena= '"+ contrasena+"'";
-             ResultSet rset = stmt.executeQuery(sqlStr);
-              return rset;
-        }
-      catch (SQLException ex) {
-            return null;
-        }
-      
-  }
-  
-  public ResultSet loginAdministrador(String dni,String contrasena){
-      conectarBaseDatos();
-      
-       /*Creamos un objeto statement*/
-        Statement stmt;
-        try{
-             stmt = conexion.createStatement();
-             String sqlStr ="SELECT * FROM administrador WHERE dni= '"+ dni +"' AND contrasena= '"+contrasena+"'";
-             ResultSet rset = stmt.executeQuery(sqlStr);
-              return rset;
-        }
-      catch (SQLException ex) {
-            return null;
-        }
-      
-  }
 
-   
+    }
+
+    public ResultSet loginCliente(String dni, String contrasena) {
+        conectarBaseDatos();
+
+        /*Creamos un objeto statement*/
+        Statement stmt;
+        try {
+            stmt = conexion.createStatement();
+            String sqlStr = "SELECT * FROM cliente WHERE dni= '" + dni + "' AND contrasena= '" + contrasena + "'";
+            ResultSet rset = stmt.executeQuery(sqlStr);
+            return rset;
+        } catch (SQLException ex) {
+            return null;
+        }
+
+    }
+
+    public ResultSet loginAgricultor(String dni, String contrasena) {
+        conectarBaseDatos();
+
+        /*Creamos un objeto statement*/
+        Statement stmt;
+        try {
+            stmt = conexion.createStatement();
+            String sqlStr = "SELECT * FROM agricultor WHERE dni= '" + dni + "' AND contrasena= '" + contrasena + "'";
+            ResultSet rset = stmt.executeQuery(sqlStr);
+            return rset;
+        } catch (SQLException ex) {
+            return null;
+        }
+
+    }
+
+    public ResultSet loginAdministrador(String dni, String contrasena) {
+        conectarBaseDatos();
+
+        /*Creamos un objeto statement*/
+        Statement stmt;
+        try {
+            stmt = conexion.createStatement();
+            String sqlStr = "SELECT * FROM administrador WHERE dni= '" + dni + "' AND contrasena= '" + contrasena + "'";
+            ResultSet rset = stmt.executeQuery(sqlStr);
+            return rset;
+        } catch (SQLException ex) {
+            return null;
+        }
+
+    }
 
 }

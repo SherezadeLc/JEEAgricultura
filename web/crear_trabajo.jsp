@@ -33,7 +33,7 @@
 <body>
     <div class="contenedor">
         <h2>Crear Trabajo</h2>
-        <form method="POST" action="CrearTrabajoServlet">
+        <form method="POST" action="Controlador">
             <label>Parcela:</label>
             <select name="id_parcela" required>
                 <option value="">Seleccione</option>
