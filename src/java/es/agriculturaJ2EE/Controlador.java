@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.hibernate.validator.internal.util.Contracts;
 
 public class Controlador extends HttpServlet {
 
@@ -46,10 +48,43 @@ public class Controlador extends HttpServlet {
             String botonSeleccionado = request.getParameter("enviar");
             //aqui comprueba si es entrar lo que se ha guardado en la variable y si es lo que se quiere que en este caso es entrar entra en el if
             if ("Entrar".equals(botonSeleccionado)) {
-                login(request, response);
+                //este es en caso de cliente
+                String dni = request.getParameter("dni");
+                String contrasena = request.getParameter("password");
 
-                // Aseguramos que la ruta esté correcta
-                ruta = "/menu.jsp";
+                /*Usamos el objeto de Tipo Connection para conectar a la bbdd y usamos el  metodo conectarBd*/
+                conexion.conectarBaseDatos();
+
+                ResultSet resultados = conexion.login(dni, contrasena);
+
+                try {
+                    if (resultados.next()) {
+                        /*En caso de que sea asi obtenemos el rol de ese usuario y el nombre*/
+                        String rol = resultados.getString("rol");
+                        String nombrePers = resultados.getString("nombre");
+                        String idUsuario = resultados.getString("id_usuario");
+                        /*Guardo en una variable de sesion el rol del usuario y su nombre*/
+                        session.setAttribute("rol", rol);
+                        session.setAttribute("nombre", nombrePers);
+                        session.setAttribute("id_usuario", idUsuario);
+                        /*COMPROBACIONES DE FUNCIONAMIENTO*/
+                        System.out.println("¡Credenciales válidas!");
+                        System.out.println(rol);
+                        System.out.println(nombrePers);
+                        System.out.println(idUsuario);
+                        // Aseguramos que la ruta esté correcta
+                        ruta = "/menu.jsp";
+
+                    }
+                } catch (SQLException ex) {
+                    // Manejar la excepción aquí
+                    ex.printStackTrace(); // Imprimir la traza de la excepción (solo para propósitos de depuración)
+                }
+                 //este es en caso de agricultor
+                 
+                 
+                 
+                  //este es en caso de administrador
 
             } else if ("Registrar".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta

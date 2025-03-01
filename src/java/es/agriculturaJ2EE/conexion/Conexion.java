@@ -10,17 +10,16 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- *
- * @author lorea
- */
+
 
 public class Conexion extends HttpServlet {
 
@@ -106,6 +105,24 @@ public class Conexion extends HttpServlet {
         } catch (SQLException e) {
             
             return false;
+        }
+      
+  }
+  
+  
+  public ResultSet login(String dni,String contrasena){
+      conectarBaseDatos();
+      
+       /*Creamos un objeto statement*/
+        Statement stmt;
+        try{
+             stmt = conexion.createStatement();
+             String sqlStr ="SELECT * FROM cliente WHERE dni='"+dni+"' AND contrasena='"+contrasena+"'";
+             ResultSet rset = stmt.executeQuery(sqlStr);
+              return rset;
+        }
+      catch (SQLException ex) {
+            return null;
         }
       
   }
