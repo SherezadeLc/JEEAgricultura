@@ -398,15 +398,21 @@ public class Controlador extends HttpServlet {
         String descripcion = request.getParameter("descripcion");
         int parcelaId = Integer.parseInt(request.getParameter("parcelaId"));
         int maquinaId = Integer.parseInt(request.getParameter("maquinaId"));
+        
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO trabajos (descripcion, parcela_id, maquina_id) VALUES (?, ?, ?)");
+            String query = "INSERT INTO trabajos (descripcion, parcela_id, maquina_id) VALUES (?, ?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, descripcion);
             stmt.setInt(2, parcelaId);
             stmt.setInt(3, maquinaId);
             stmt.executeUpdate();
-            response.sendRedirect("index.html");
-        } catch (Exception e) {
+            
+            // Redirige a una página de éxito o la vista de trabajos
+            response.sendRedirect("menu.jsp?mensaje=Trabajo creado correctamente");
+
+        } catch (SQLException e) {
             e.printStackTrace();
+            response.sendRedirect("crearTrabajo.jsp?error=Error al crear el trabajo");
         }
     }
 
