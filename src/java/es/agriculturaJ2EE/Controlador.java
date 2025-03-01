@@ -59,123 +59,36 @@ public class Controlador extends HttpServlet {
                 ResultSet resultado = conexion.loginAgricultor(dni, contrasena);
                 ResultSet resultadoAdmin = conexion.loginAdministrador(dni, contrasena);
                 try {
-                    //login para cliente
-                    /*Si al menos hay un registro coincidente entra en el if, es decir recorremos el registro devuelto*/
+                    String rol = null, nombrePers = null, idUsuario = null;
                     if (resultados.next()) {
-                        /*En caso de que sea asi obtenemos el rol de ese usuario y el nombre*/
-                        String rol = resultados.getString("rol");
-                        String nombrePers = resultados.getString("nombre");
-                        String idUsuario = resultados.getString("id_usuario");
-                        String usuariolog = resultados.getString("usuario");
+                        rol = resultados.getString("rol");
+                        nombrePers = resultados.getString("nombre");
+                        idUsuario = resultados.getString("id_usuario");
+                    } else if (resultado.next()) {
+                        rol = resultado.getString("rol");
+                        nombrePers = resultado.getString("nombre");
+                        idUsuario = resultado.getString("id_usuario");
+                    } else if (resultadoAdmin.next()) {
+                        rol = resultadoAdmin.getString("rol");
+                        nombrePers = resultadoAdmin.getString("nombre");
+                        idUsuario = resultadoAdmin.getString("id_usuario");
+                    }
 
-                        /*Guardo en una variable de sesion el rol del usuario y su nombre*/
+                    if (rol != null) {
                         session.setAttribute("rol", rol);
                         session.setAttribute("nombre", nombrePers);
                         session.setAttribute("id_usuario", idUsuario);
-                        session.setAttribute("usuario", usuariolog);
 
-                        /*COMPROBACIONES DE FUNCIONAMIENTO*/
                         System.out.println("¡Credenciales válidas!");
                         System.out.println(rol);
                         System.out.println(nombrePers);
                         System.out.println(idUsuario);
 
-                        /*CONDICIONAR ROLES PARA ACCESO SIN LOGEO Y CON LOGEO ----------- USAR ELSE IF ANALIZANDO COMPRADOR Y VENDEDOR  REDIRECCION
-                        A MENU Y SI NO ES NINGUNO (ELSE) REDIRECCION A LOGIN Y DESTRUCCION DE SESIONS*/
- /*Al igual que en php desde aqui ya redirigimos al usuario en caso de ser rol invitado*/
-                        if ("cliente".equals(rol)) {
-                           
+                        if ("cliente".equals(rol) || "agricultor".equals(rol) || "admin".equals(rol)) {
                             ruta = "/menu.jsp";
-                        }else {
-                            session.invalidate();
-                            ruta = "/login.jsp";
                         }
-
-                    } else {
-                        session.setAttribute("loginMensaje", "¡Credenciales INCORRECTAS!");
-
-                        ruta = "/login.jsp";
-
                     }
-                    
-                    //login para agricultor
-                    if (resultado.next()) {
-                        /*En caso de que sea asi obtenemos el rol de ese usuario y el nombre*/
-                        String rol = resultado.getString("rol");
-                        String nombrePers = resultado.getString("nombre");
-                        String idUsuario = resultado.getString("id_usuario");
-                        String usuariolog = resultado.getString("usuario");
 
-                        /*Guardo en una variable de sesion el rol del usuario y su nombre*/
-                        session.setAttribute("rol", rol);
-                        session.setAttribute("nombre", nombrePers);
-                        session.setAttribute("id_usuario", idUsuario);
-                        session.setAttribute("usuario", usuariolog);
-
-                        /*COMPROBACIONES DE FUNCIONAMIENTO*/
-                        System.out.println("¡Credenciales válidas!");
-                        System.out.println(rol);
-                        System.out.println(nombrePers);
-                        System.out.println(idUsuario);
-
-                        /*CONDICIONAR ROLES PARA ACCESO SIN LOGEO Y CON LOGEO ----------- USAR ELSE IF ANALIZANDO COMPRADOR Y VENDEDOR  REDIRECCION
-                        A MENU Y SI NO ES NINGUNO (ELSE) REDIRECCION A LOGIN Y DESTRUCCION DE SESIONS*/
- /*Al igual que en php desde aqui ya redirigimos al usuario en caso de ser rol invitado*/
-                        if ("agricultor".equals(rol)) {
-                           
-                            ruta = "/menu.jsp";
-                        }else {
-                            session.invalidate();
-                            ruta = "/login.jsp";
-                        }
-
-                    } else {
-                        session.setAttribute("loginMensaje", "¡Credenciales INCORRECTAS!");
-
-                        ruta = "/login.jsp";
-
-                    }
-                    
-                    
-                    //login para administrador
-                    if (resultadoAdmin.next()) {
-                        /*En caso de que sea asi obtenemos el rol de ese usuario y el nombre*/
-                        String rol = resultadoAdmin.getString("rol");
-                        String nombrePers = resultadoAdmin.getString("nombre");
-                        String idUsuario = resultadoAdmin.getString("id_usuario");
-                        String usuariolog = resultadoAdmin.getString("usuario");
-
-                        /*Guardo en una variable de sesion el rol del usuario y su nombre*/
-                        session.setAttribute("rol", rol);
-                        session.setAttribute("nombre", nombrePers);
-                        session.setAttribute("id_usuario", idUsuario);
-                        session.setAttribute("usuario", usuariolog);
-
-                        /*COMPROBACIONES DE FUNCIONAMIENTO*/
-                        System.out.println("¡Credenciales válidas!");
-                        System.out.println(rol);
-                        System.out.println(nombrePers);
-                        System.out.println(idUsuario);
-
-                        /*CONDICIONAR ROLES PARA ACCESO SIN LOGEO Y CON LOGEO ----------- USAR ELSE IF ANALIZANDO COMPRADOR Y VENDEDOR  REDIRECCION
-                        A MENU Y SI NO ES NINGUNO (ELSE) REDIRECCION A LOGIN Y DESTRUCCION DE SESIONS*/
- /*Al igual que en php desde aqui ya redirigimos al usuario en caso de ser rol invitado*/
-                        if ("admin".equals(rol)) {
-                           
-                            ruta = "/menu.jsp";
-                        }else {
-                            session.invalidate();
-                            ruta = "/login.jsp";
-                        }
-
-                    } else {
-                        session.setAttribute("loginMensaje", "¡Credenciales INCORRECTAS!");
-
-                        ruta = "/login.jsp";
-
-                    }
-                    
-                    
                 } catch (SQLException ex) {
                     // Manejar la excepción aquí
                     ex.printStackTrace(); // Imprimir la traza de la excepción (solo para propósitos de depuración)
@@ -398,7 +311,7 @@ public class Controlador extends HttpServlet {
         String descripcion = request.getParameter("descripcion");
         int parcelaId = Integer.parseInt(request.getParameter("parcelaId"));
         int maquinaId = Integer.parseInt(request.getParameter("maquinaId"));
-        
+
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
             String query = "INSERT INTO trabajos (descripcion, parcela_id, maquina_id) VALUES (?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -406,7 +319,7 @@ public class Controlador extends HttpServlet {
             stmt.setInt(2, parcelaId);
             stmt.setInt(3, maquinaId);
             stmt.executeUpdate();
-            
+
             // Redirige a una página de éxito o la vista de trabajos
             response.sendRedirect("menu.jsp?mensaje=Trabajo creado correctamente");
 

@@ -34,7 +34,7 @@ public class Conexion extends HttpServlet {
   private String contrasena;
   
   public Conexion(){
-      this.url="jdbc:mysql://localhost/agricultura";
+      this.url="jdbc:mysql://localhost/agriculturaj2ee";
       this.usuario="root";
       this.contrasena="";
        try {

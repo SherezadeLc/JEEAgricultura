@@ -15,10 +15,10 @@
 <body>
     <div class="contenedor">
         <%
-        HttpSession sesion = request.getSession(false);
-        if (sesion != null && sesion.getAttribute("tipo") != null) {
+        HttpSession sesion = request.getSession(true);
+        if (sesion != null && sesion.getAttribute("rol") != null) {
             String nombre = (String) sesion.getAttribute("nombre");
-            String tipo = (String) sesion.getAttribute("tipo");
+            String tipo = (String) sesion.getAttribute("rol");
         %>
         <h1>Bienvenido, <%= nombre %></h1>
         <p>Rol: <%= tipo %></p>

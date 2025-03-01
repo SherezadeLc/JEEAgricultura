@@ -13,8 +13,8 @@
     </head>
     <body>
        <h1>Login </h1>
-        <div class="contenedor">
-           <form method="POST" action="Controlador">
+        
+            <form method="POST" action="Controlador">
                 
                 <label>DNI:</label>
                 <input type="text" name="dni" value="">
