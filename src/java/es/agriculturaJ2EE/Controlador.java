@@ -222,19 +222,40 @@ public class Controlador extends HttpServlet {
     }
 
     private void cambiarContraseña(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String usuario = request.getParameter("usuario");
-        String nuevaContraseña = request.getParameter("nuevaContraseña");
+    String usuario = request.getParameter("usuario");
+    String nuevaContraseña = request.getParameter("nuevaContraseña");
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            PreparedStatement stmt = conn.prepareStatement("UPDATE usuarios SET contraseña = ? WHERE usuario = ?");
-            stmt.setString(1, nuevaContraseña);
-            stmt.setString(2, usuario);
-            stmt.executeUpdate();
-            response.sendRedirect("login.jsp");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    if (usuario == null || usuario.isEmpty() || nuevaContraseña == null || nuevaContraseña.isEmpty()) {
+        response.sendRedirect("cambiar_contraseña.jsp?error=Campos vacíos");
+        return;
     }
+
+    try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        // Verificar si el usuario existe antes de actualizar
+        PreparedStatement checkStmt = conn.prepareStatement("SELECT nombre FROM agricultor WHERE nombre = ?");
+        checkStmt.setString(1, usuario);
+        ResultSet rs = checkStmt.executeQuery();
+
+        if (rs.next()) { // Si el usuario existe, actualizar la contraseña
+            PreparedStatement updateStmt = conn.prepareStatement("UPDATE agricultor SET contrasena = ? WHERE nombre = ?");
+            updateStmt.setString(1, nuevaContraseña);
+            updateStmt.setString(2, usuario);
+            int filasActualizadas = updateStmt.executeUpdate();
+
+            if (filasActualizadas > 0) {
+                response.sendRedirect("login.jsp?mensaje=Cambio exitoso");
+            } else {
+                response.sendRedirect("cambiar_contraseña.jsp?error=No se pudo actualizar");
+            }
+        } else {
+            response.sendRedirect("cambiar_contraseña.jsp?error=Usuario no encontrado");
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        response.sendRedirect("cambiar_contraseña.jsp?error=Error en la base de datos");
+    }
+}
+
 
     private void listarParcelas(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
