@@ -62,7 +62,12 @@ public class Controlador extends HttpServlet {
             }
             if ("Confirmar".equals(botonSeleccionado)) {
                 String nombre = request.getParameter("nombre");
-                String contraseña = request.getParameter("contrasena");
+                String dni = request.getParameter("dni");
+                String contraseña = request.getParameter("password");
+                String idCatastro = request.getParameter("id_catastro");
+                String numero_parcela = request.getParameter("numero_parcela");
+                String latitud = request.getParameter("latitud");
+                String longitud = request.getParameter("longitud");
 
             }
             rd = getServletContext().getRequestDispatcher(ruta);
@@ -96,12 +101,18 @@ public class Controlador extends HttpServlet {
     }
 
     private void registro(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String usuario = request.getParameter("usuario");
-        String contraseña = request.getParameter("contraseña");
-
+        String nombre = request.getParameter("nombre");
+        String dni = request.getParameter("dni");
+        String contraseña = request.getParameter("password");
+        String idCatastro = request.getParameter("id_catastro");
+        String numero_parcela = request.getParameter("numero_parcela");
+        String latitud = request.getParameter("latitud");
+        String longitud = request.getParameter("longitud");
+        
+        
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO usuarios (usuario, contraseña) VALUES (?, ?)");
-            stmt.setString(1, usuario);
+            PreparedStatement stmt = conn.prepareStatement("INSERT INTO usuarios (dni,nombre, contraseña,id_catastro) VALUES (?, ?)");
+            stmt.setString(1, dni);
             stmt.setString(2, contraseña);
             stmt.executeUpdate();
             response.sendRedirect("login.jsp");
