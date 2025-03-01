@@ -397,6 +397,42 @@ public class Controlador extends HttpServlet {
         }
     }
 
+    private void editarAgricultor(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String idAgricultor = request.getParameter("id_agricultor");
+        String nombre = request.getParameter("nombre");
+        String dni = request.getParameter("dni");
+        String contrasena = request.getParameter("contrasena");
+
+        // Validar que los campos no estén vacíos
+        if (nombre == null || nombre.isEmpty() || dni == null || dni.isEmpty() || contrasena == null || contrasena.isEmpty()) {
+            response.sendRedirect("editar_agricultor.jsp?error=Todos los campos son obligatorios");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            // Crear la consulta SQL para actualizar los datos del agricultor
+            String sql = "UPDATE agricultor SET nombre = ?, dni = ?, contrasena = ? WHERE id_agricultor = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, nombre);
+            stmt.setString(2, dni);
+            stmt.setString(3, contrasena);
+            stmt.setString(4, idAgricultor);
+
+            // Ejecutar la actualización
+            int filasAfectadas = stmt.executeUpdate();
+
+            if (filasAfectadas > 0) {
+                response.sendRedirect("listarAgricultores.jsp?mensaje=Agricultor actualizado correctamente");
+            } else {
+                response.sendRedirect("editar_agricultor.jsp?error=No se pudo actualizar el agricultor");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.sendRedirect("editar_agricultor.jsp?error=Error en la base de datos");
+        }
+    }
+
     private void registro() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
