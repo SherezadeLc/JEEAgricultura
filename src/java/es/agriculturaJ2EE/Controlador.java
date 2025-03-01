@@ -221,15 +221,42 @@ public class Controlador extends HttpServlet {
         }
     }
 
-    private void agregarAgricultor(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+     private void agregarAgricultor(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String nombre = request.getParameter("nombre");
+        String dni = request.getParameter("dni");
+        String contrasena = request.getParameter("contrasena");
+
+        if (nombre == null || dni == null || contrasena == null || nombre.isEmpty() || dni.isEmpty() || contrasena.isEmpty()) {
+            response.sendRedirect("añadir_agricultores.jsp?error=Todos los campos son obligatorios");
+            return;
+        }
+
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO agricultores (nombre) VALUES (?)");
+            // Verificar si el DNI ya está registrado
+            PreparedStatement checkStmt = conn.prepareStatement("SELECT COUNT(*) FROM agricultores WHERE dni = ?");
+            checkStmt.setString(1, dni);
+            ResultSet rs = checkStmt.executeQuery();
+            rs.next();
+            if (rs.getInt(1) > 0) {
+                response.sendRedirect("añadir_agricultores.jsp?error=El DNI ya está registrado");
+                return;
+            }
+
+            // Insertar el nuevo agricultor
+            PreparedStatement stmt = conn.prepareStatement("INSERT INTO agricultores (nombre, dni, contrasena) VALUES (?, ?, ?)");
             stmt.setString(1, nombre);
-            stmt.executeUpdate();
-            response.sendRedirect("Controlador?action=listarAgricultores");
+            stmt.setString(2, dni);
+            stmt.setString(3, contrasena);
+
+            int filasAfectadas = stmt.executeUpdate();
+            if (filasAfectadas > 0) {
+                response.sendRedirect("añadir_agricultores.jsp?mensaje=Agricultor añadido correctamente");
+            } else {
+                response.sendRedirect("añadir_agricultores.jsp?error=No se pudo añadir el agricultor");
+            }
         } catch (Exception e) {
             e.printStackTrace();
+            response.sendRedirect("añadir_agricultores.jsp?error=Error en la base de datos");
         }
     }
 }
