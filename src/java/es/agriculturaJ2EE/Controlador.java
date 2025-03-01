@@ -55,25 +55,25 @@ public class Controlador extends HttpServlet {
                 /*Usamos el objeto de Tipo Connection para conectar a la bbdd y usamos el  metodo conectarBd*/
                 conexion.conectarBaseDatos();
 
-                ResultSet resultados = conexion.login(dni, contrasena);
+                ResultSet resultados = conexion.loginCliente(dni, contrasena);
 
                 try {
                     if (resultados.next()) {
                         /*En caso de que sea asi obtenemos el rol de ese usuario y el nombre*/
-                        String rol = resultados.getString("rol");
+                        
                         String nombrePers = resultados.getString("nombre");
                         String idUsuario = resultados.getString("id_usuario");
                         /*Guardo en una variable de sesion el rol del usuario y su nombre*/
-                        session.setAttribute("rol", rol);
+                        session.setAttribute("rol", "cliente");
                         session.setAttribute("nombre", nombrePers);
                         session.setAttribute("id_usuario", idUsuario);
                         /*COMPROBACIONES DE FUNCIONAMIENTO*/
                         System.out.println("¡Credenciales válidas!");
-                        System.out.println(rol);
+                        
                         System.out.println(nombrePers);
                         System.out.println(idUsuario);
                         // Aseguramos que la ruta esté correcta
-                        ruta = "/menu.jsp";
+                        
 
                     }
                 } catch (SQLException ex) {
@@ -82,10 +82,79 @@ public class Controlador extends HttpServlet {
                 }
                  //este es en caso de agricultor
                  
-                 
+                  ResultSet resultado = conexion.loginAgricultor(dni, contrasena);
+
+                try {
+                    if (resultado.next()) {
+                        /*En caso de que sea asi obtenemos el rol de ese usuario y el nombre*/
+                        
+                        String nombrePers = resultado.getString("nombre");
+                        String idUsuario = resultado.getString("id_usuario");
+                        /*Guardo en una variable de sesion el rol del usuario y su nombre*/
+                        session.setAttribute("rol", "agricultor");
+                        session.setAttribute("nombre", nombrePers);
+                        session.setAttribute("id_usuario", idUsuario);
+                        /*COMPROBACIONES DE FUNCIONAMIENTO*/
+                        System.out.println("¡Credenciales válidas!");
+                        
+                        System.out.println(nombrePers);
+                        System.out.println(idUsuario);
+                        // Aseguramos que la ruta esté correcta
+                        
+
+                    }
+                } catch (SQLException ex) {
+                    // Manejar la excepción aquí
+                    ex.printStackTrace(); // Imprimir la traza de la excepción (solo para propósitos de depuración)
+                }
                  
                   //este es en caso de administrador
 
+                   ResultSet resultadoAdmin = conexion.loginAadministrador(dni, contrasena);
+
+                try {
+                    if (resultado.next()) {
+                        /*En caso de que sea asi obtenemos el rol de ese usuario y el nombre*/
+                        
+                        String nombrePers = resultadoAdmin.getString("nombre");
+                        String idUsuario = resultadoAdmin.getString("id_usuario");
+                        /*Guardo en una variable de sesion el rol del usuario y su nombre*/
+                        session.setAttribute("rol", "admin");
+                        session.setAttribute("nombre", nombrePers);
+                        session.setAttribute("id_usuario", idUsuario);
+                        /*COMPROBACIONES DE FUNCIONAMIENTO*/
+                        System.out.println("¡Credenciales válidas!");
+                        
+                        System.out.println(nombrePers);
+                        System.out.println(idUsuario);
+                        // Aseguramos que la ruta esté correcta
+                        
+
+                    }
+                } catch (SQLException ex) {
+                    // Manejar la excepción aquí
+                    ex.printStackTrace(); // Imprimir la traza de la excepción (solo para propósitos de depuración)
+                }
+                  
+                  if ("cliente".equals(dni)) {
+                      ruta="/menu.jsp";
+                  }
+                  else if ("agricultor".equals(dni)) {
+                      ruta="/menu.jsp";
+                  }
+                  else if ("admin".equals(dni)) {
+                      ruta="/menu.jsp";
+                  }else {
+                        session.setAttribute("loginMensaje", "¡Credenciales INCORRECTAS!");
+
+                        ruta = "/login.jsp";
+
+                    }
+                  
+                  
+                  
+                  
+                  
             } else if ("Registrar".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
