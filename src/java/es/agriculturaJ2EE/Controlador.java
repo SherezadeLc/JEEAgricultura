@@ -56,105 +56,131 @@ public class Controlador extends HttpServlet {
                 conexion.conectarBaseDatos();
 
                 ResultSet resultados = conexion.loginCliente(dni, contrasena);
-
+                ResultSet resultado = conexion.loginAgricultor(dni, contrasena);
+                ResultSet resultadoAdmin = conexion.loginAdministrador(dni, contrasena);
                 try {
+                    //login para cliente
+                    /*Si al menos hay un registro coincidente entra en el if, es decir recorremos el registro devuelto*/
                     if (resultados.next()) {
                         /*En caso de que sea asi obtenemos el rol de ese usuario y el nombre*/
-                        
+                        String rol = resultados.getString("rol");
                         String nombrePers = resultados.getString("nombre");
                         String idUsuario = resultados.getString("id_usuario");
+                        String usuariolog = resultados.getString("usuario");
+
                         /*Guardo en una variable de sesion el rol del usuario y su nombre*/
-                        session.setAttribute("rol", "cliente");
+                        session.setAttribute("rol", rol);
                         session.setAttribute("nombre", nombrePers);
                         session.setAttribute("id_usuario", idUsuario);
+                        session.setAttribute("usuario", usuariolog);
+
                         /*COMPROBACIONES DE FUNCIONAMIENTO*/
                         System.out.println("¡Credenciales válidas!");
-                        
+                        System.out.println(rol);
                         System.out.println(nombrePers);
                         System.out.println(idUsuario);
-                        // Aseguramos que la ruta esté correcta
-                        
 
-                    }
-                } catch (SQLException ex) {
-                    // Manejar la excepción aquí
-                    ex.printStackTrace(); // Imprimir la traza de la excepción (solo para propósitos de depuración)
-                }
-                 //este es en caso de agricultor
-                 
-                  ResultSet resultado = conexion.loginAgricultor(dni, contrasena);
+                        /*CONDICIONAR ROLES PARA ACCESO SIN LOGEO Y CON LOGEO ----------- USAR ELSE IF ANALIZANDO COMPRADOR Y VENDEDOR  REDIRECCION
+                        A MENU Y SI NO ES NINGUNO (ELSE) REDIRECCION A LOGIN Y DESTRUCCION DE SESIONS*/
+ /*Al igual que en php desde aqui ya redirigimos al usuario en caso de ser rol invitado*/
+                        if ("cliente".equals(rol)) {
+                           
+                            ruta = "/menu.jsp";
+                        }else {
+                            session.invalidate();
+                            ruta = "/login.jsp";
+                        }
 
-                try {
-                    if (resultado.next()) {
-                        /*En caso de que sea asi obtenemos el rol de ese usuario y el nombre*/
-                        
-                        String nombrePers = resultado.getString("nombre");
-                        String idUsuario = resultado.getString("id_usuario");
-                        /*Guardo en una variable de sesion el rol del usuario y su nombre*/
-                        session.setAttribute("rol", "agricultor");
-                        session.setAttribute("nombre", nombrePers);
-                        session.setAttribute("id_usuario", idUsuario);
-                        /*COMPROBACIONES DE FUNCIONAMIENTO*/
-                        System.out.println("¡Credenciales válidas!");
-                        
-                        System.out.println(nombrePers);
-                        System.out.println(idUsuario);
-                        // Aseguramos que la ruta esté correcta
-                        
-
-                    }
-                } catch (SQLException ex) {
-                    // Manejar la excepción aquí
-                    ex.printStackTrace(); // Imprimir la traza de la excepción (solo para propósitos de depuración)
-                }
-                 
-                  //este es en caso de administrador
-
-                   ResultSet resultadoAdmin = conexion.loginAadministrador(dni, contrasena);
-
-                try {
-                    if (resultado.next()) {
-                        /*En caso de que sea asi obtenemos el rol de ese usuario y el nombre*/
-                        
-                        String nombrePers = resultadoAdmin.getString("nombre");
-                        String idUsuario = resultadoAdmin.getString("id_usuario");
-                        /*Guardo en una variable de sesion el rol del usuario y su nombre*/
-                        session.setAttribute("rol", "admin");
-                        session.setAttribute("nombre", nombrePers);
-                        session.setAttribute("id_usuario", idUsuario);
-                        /*COMPROBACIONES DE FUNCIONAMIENTO*/
-                        System.out.println("¡Credenciales válidas!");
-                        
-                        System.out.println(nombrePers);
-                        System.out.println(idUsuario);
-                        // Aseguramos que la ruta esté correcta
-                        
-
-                    }
-                } catch (SQLException ex) {
-                    // Manejar la excepción aquí
-                    ex.printStackTrace(); // Imprimir la traza de la excepción (solo para propósitos de depuración)
-                }
-                  
-                  if ("cliente".equals(dni)) {
-                      ruta="/menu.jsp";
-                  }
-                  else if ("agricultor".equals(dni)) {
-                      ruta="/menu.jsp";
-                  }
-                  else if ("admin".equals(dni)) {
-                      ruta="/menu.jsp";
-                  }else {
+                    } else {
                         session.setAttribute("loginMensaje", "¡Credenciales INCORRECTAS!");
 
                         ruta = "/login.jsp";
 
                     }
-                  
-                  
-                  
-                  
-                  
+                    
+                    //login para agricultor
+                    if (resultado.next()) {
+                        /*En caso de que sea asi obtenemos el rol de ese usuario y el nombre*/
+                        String rol = resultado.getString("rol");
+                        String nombrePers = resultado.getString("nombre");
+                        String idUsuario = resultado.getString("id_usuario");
+                        String usuariolog = resultado.getString("usuario");
+
+                        /*Guardo en una variable de sesion el rol del usuario y su nombre*/
+                        session.setAttribute("rol", rol);
+                        session.setAttribute("nombre", nombrePers);
+                        session.setAttribute("id_usuario", idUsuario);
+                        session.setAttribute("usuario", usuariolog);
+
+                        /*COMPROBACIONES DE FUNCIONAMIENTO*/
+                        System.out.println("¡Credenciales válidas!");
+                        System.out.println(rol);
+                        System.out.println(nombrePers);
+                        System.out.println(idUsuario);
+
+                        /*CONDICIONAR ROLES PARA ACCESO SIN LOGEO Y CON LOGEO ----------- USAR ELSE IF ANALIZANDO COMPRADOR Y VENDEDOR  REDIRECCION
+                        A MENU Y SI NO ES NINGUNO (ELSE) REDIRECCION A LOGIN Y DESTRUCCION DE SESIONS*/
+ /*Al igual que en php desde aqui ya redirigimos al usuario en caso de ser rol invitado*/
+                        if ("agricultor".equals(rol)) {
+                           
+                            ruta = "/menu.jsp";
+                        }else {
+                            session.invalidate();
+                            ruta = "/login.jsp";
+                        }
+
+                    } else {
+                        session.setAttribute("loginMensaje", "¡Credenciales INCORRECTAS!");
+
+                        ruta = "/login.jsp";
+
+                    }
+                    
+                    
+                    //login para administrador
+                    if (resultadoAdmin.next()) {
+                        /*En caso de que sea asi obtenemos el rol de ese usuario y el nombre*/
+                        String rol = resultadoAdmin.getString("rol");
+                        String nombrePers = resultadoAdmin.getString("nombre");
+                        String idUsuario = resultadoAdmin.getString("id_usuario");
+                        String usuariolog = resultadoAdmin.getString("usuario");
+
+                        /*Guardo en una variable de sesion el rol del usuario y su nombre*/
+                        session.setAttribute("rol", rol);
+                        session.setAttribute("nombre", nombrePers);
+                        session.setAttribute("id_usuario", idUsuario);
+                        session.setAttribute("usuario", usuariolog);
+
+                        /*COMPROBACIONES DE FUNCIONAMIENTO*/
+                        System.out.println("¡Credenciales válidas!");
+                        System.out.println(rol);
+                        System.out.println(nombrePers);
+                        System.out.println(idUsuario);
+
+                        /*CONDICIONAR ROLES PARA ACCESO SIN LOGEO Y CON LOGEO ----------- USAR ELSE IF ANALIZANDO COMPRADOR Y VENDEDOR  REDIRECCION
+                        A MENU Y SI NO ES NINGUNO (ELSE) REDIRECCION A LOGIN Y DESTRUCCION DE SESIONS*/
+ /*Al igual que en php desde aqui ya redirigimos al usuario en caso de ser rol invitado*/
+                        if ("admin".equals(rol)) {
+                           
+                            ruta = "/menu.jsp";
+                        }else {
+                            session.invalidate();
+                            ruta = "/login.jsp";
+                        }
+
+                    } else {
+                        session.setAttribute("loginMensaje", "¡Credenciales INCORRECTAS!");
+
+                        ruta = "/login.jsp";
+
+                    }
+                    
+                    
+                } catch (SQLException ex) {
+                    // Manejar la excepción aquí
+                    ex.printStackTrace(); // Imprimir la traza de la excepción (solo para propósitos de depuración)
+                }
+
             } else if ("Registrar".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
@@ -199,63 +225,40 @@ public class Controlador extends HttpServlet {
         }
     }
 
-    private void login(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void cambiarContraseña(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String usuario = request.getParameter("usuario");
-        String contraseña = request.getParameter("contraseña");
+        String nuevaContraseña = request.getParameter("nuevaContraseña");
+
+        if (usuario == null || usuario.isEmpty() || nuevaContraseña == null || nuevaContraseña.isEmpty()) {
+            response.sendRedirect("cambiar_contraseña.jsp?error=Campos vacíos");
+            return;
+        }
 
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM usuarios WHERE usuario = ? AND contraseña = ?");
-            stmt.setString(1, usuario);
-            stmt.setString(2, contraseña);
-            ResultSet rs = stmt.executeQuery();
+            // Verificar si el usuario existe antes de actualizar
+            PreparedStatement checkStmt = conn.prepareStatement("SELECT nombre FROM agricultor WHERE nombre = ?");
+            checkStmt.setString(1, usuario);
+            ResultSet rs = checkStmt.executeQuery();
 
-            if (rs.next()) {
-                HttpSession session = request.getSession();
-                session.setAttribute("usuario", usuario);
-                response.sendRedirect("dashboard.jsp");
+            if (rs.next()) { // Si el usuario existe, actualizar la contraseña
+                PreparedStatement updateStmt = conn.prepareStatement("UPDATE agricultor SET contrasena = ? WHERE nombre = ?");
+                updateStmt.setString(1, nuevaContraseña);
+                updateStmt.setString(2, usuario);
+                int filasActualizadas = updateStmt.executeUpdate();
+
+                if (filasActualizadas > 0) {
+                    response.sendRedirect("login.jsp?mensaje=Cambio exitoso");
+                } else {
+                    response.sendRedirect("cambiar_contraseña.jsp?error=No se pudo actualizar");
+                }
             } else {
-                response.sendRedirect("login.jsp?error=1");
+                response.sendRedirect("cambiar_contraseña.jsp?error=Usuario no encontrado");
             }
         } catch (Exception e) {
             e.printStackTrace();
+            response.sendRedirect("cambiar_contraseña.jsp?error=Error en la base de datos");
         }
     }
-
-    private void cambiarContraseña(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    String usuario = request.getParameter("usuario");
-    String nuevaContraseña = request.getParameter("nuevaContraseña");
-
-    if (usuario == null || usuario.isEmpty() || nuevaContraseña == null || nuevaContraseña.isEmpty()) {
-        response.sendRedirect("cambiar_contraseña.jsp?error=Campos vacíos");
-        return;
-    }
-
-    try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-        // Verificar si el usuario existe antes de actualizar
-        PreparedStatement checkStmt = conn.prepareStatement("SELECT nombre FROM agricultor WHERE nombre = ?");
-        checkStmt.setString(1, usuario);
-        ResultSet rs = checkStmt.executeQuery();
-
-        if (rs.next()) { // Si el usuario existe, actualizar la contraseña
-            PreparedStatement updateStmt = conn.prepareStatement("UPDATE agricultor SET contrasena = ? WHERE nombre = ?");
-            updateStmt.setString(1, nuevaContraseña);
-            updateStmt.setString(2, usuario);
-            int filasActualizadas = updateStmt.executeUpdate();
-
-            if (filasActualizadas > 0) {
-                response.sendRedirect("login.jsp?mensaje=Cambio exitoso");
-            } else {
-                response.sendRedirect("cambiar_contraseña.jsp?error=No se pudo actualizar");
-            }
-        } else {
-            response.sendRedirect("cambiar_contraseña.jsp?error=Usuario no encontrado");
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-        response.sendRedirect("cambiar_contraseña.jsp?error=Error en la base de datos");
-    }
-}
-
 
     private void listarParcelas(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {

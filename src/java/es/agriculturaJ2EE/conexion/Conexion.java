@@ -121,7 +121,7 @@ public class Conexion extends HttpServlet {
         Statement stmt;
         try{
              stmt = conexion.createStatement();
-             String sqlStr ="SELECT * FROM cliente WHERE dni='"+dni+"' AND contrasena='"+contrasena+"'";
+             String sqlStr ="SELECT * FROM cliente WHERE dni= '" + dni +"' AND contrasena= '"+ contrasena +"'";
              ResultSet rset = stmt.executeQuery(sqlStr);
               return rset;
         }
@@ -137,7 +137,7 @@ public class Conexion extends HttpServlet {
         Statement stmt;
         try{
              stmt = conexion.createStatement();
-             String sqlStr ="SELECT * FROM agricultor WHERE dni='"+dni+"' AND contrasena='"+contrasena+"'";
+             String sqlStr ="SELECT * FROM agricultor WHERE dni= '"+ dni +"' AND contrasena= '"+ contrasena+"'";
              ResultSet rset = stmt.executeQuery(sqlStr);
               return rset;
         }
@@ -147,14 +147,14 @@ public class Conexion extends HttpServlet {
       
   }
   
-  public ResultSet loginAadministrador(String dni,String contrasena){
+  public ResultSet loginAdministrador(String dni,String contrasena){
       conectarBaseDatos();
       
        /*Creamos un objeto statement*/
         Statement stmt;
         try{
              stmt = conexion.createStatement();
-             String sqlStr ="SELECT * FROM cliente WHERE dni='"+dni+"' AND contrasena='"+contrasena+"'";
+             String sqlStr ="SELECT * FROM administrador WHERE dni= '"+ dni +"' AND contrasena= '"+contrasena+"'";
              ResultSet rset = stmt.executeQuery(sqlStr);
               return rset;
         }

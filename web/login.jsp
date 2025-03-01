@@ -19,7 +19,7 @@
                 <label>DNI:</label>
                 <input type="text" name="dni" value="">
                 <label>Contraseña:</label>
-                <input type="password" name="password" value="" >
+                <input type="password" name="password" value=""/><br><br>
                  <input type="submit" value="Entrar" name="enviar"/>
                 <p>¿No estás registrado?</p>
                 <button type="submit" name="enviar" value="Registrar" name="Registrar">Registrar</button>
