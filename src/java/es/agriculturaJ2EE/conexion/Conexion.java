@@ -73,7 +73,7 @@ public class Conexion extends HttpServlet {
        /*Usamos el metodo encargado de iniciar la conexion con la BD*/
         conectarBaseDatos();
       try{
-            String sqlStr = "INSERT INTO cliente (dni,nombre, contraseña,id_catastro) VALUES (?, ?,?,?)";
+            String sqlStr = "INSERT INTO cliente (dni,nombre, contrasena,id_catastro) VALUES (?, ?,?,?)";
             String sqlStr1 = "INSERT INTO parcela (id_catastro, numero_parcela) VALUES  (?, ?)";
             String sqlStr2 = "INSERT INTO puntos (numero_parcela, latitud, longitud) VALUES (?, ?,?)";
             PreparedStatement preparedStatement = conexion.prepareStatement(sqlStr);
