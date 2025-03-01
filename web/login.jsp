@@ -14,13 +14,13 @@
     <body>
        <h1>Login </h1>
         <div class="contenedor">
-            <form name="form" action="Controlador" method="POST" enctype="multipart/form-data">
+           <form method="POST" action="Controlador">
                 
                 <label>DNI:</label>
-                <input type="text" name="dni" required>
+                <input type="text" name="dni" value="">
                 <label>Contraseña:</label>
-                <input type="password" name="password" required>
-                <input type="submit" name="enviar" value="Enviar">
+                <input type="password" name="password" value="" >
+                 <input type="submit" value="Entrar" name="enviar"/>
                 <p>¿No estás registrado?</p>
                 <button type="submit" name="enviar" value="Registrar" name="Registrar">Registrar</button>
                

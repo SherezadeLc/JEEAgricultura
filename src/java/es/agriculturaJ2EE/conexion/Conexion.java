@@ -114,7 +114,7 @@ public class Conexion extends HttpServlet {
   }
   
   
-  public ResultSet login(String dni,String contrasena){
+  public ResultSet loginCliente(String dni,String contrasena){
       conectarBaseDatos();
       
        /*Creamos un objeto statement*/
@@ -130,7 +130,39 @@ public class Conexion extends HttpServlet {
         }
       
   }
+  public ResultSet loginAgricultor(String dni,String contrasena){
+      conectarBaseDatos();
+      
+       /*Creamos un objeto statement*/
+        Statement stmt;
+        try{
+             stmt = conexion.createStatement();
+             String sqlStr ="SELECT * FROM agricultor WHERE dni='"+dni+"' AND contrasena='"+contrasena+"'";
+             ResultSet rset = stmt.executeQuery(sqlStr);
+              return rset;
+        }
+      catch (SQLException ex) {
+            return null;
+        }
+      
+  }
   
+  public ResultSet loginAadministrador(String dni,String contrasena){
+      conectarBaseDatos();
+      
+       /*Creamos un objeto statement*/
+        Statement stmt;
+        try{
+             stmt = conexion.createStatement();
+             String sqlStr ="SELECT * FROM cliente WHERE dni='"+dni+"' AND contrasena='"+contrasena+"'";
+             ResultSet rset = stmt.executeQuery(sqlStr);
+              return rset;
+        }
+      catch (SQLException ex) {
+            return null;
+        }
+      
+  }
 
    
 
