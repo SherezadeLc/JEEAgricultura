@@ -103,18 +103,29 @@ public class Controlador extends HttpServlet {
     private void registro(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String nombre = request.getParameter("nombre");
         String dni = request.getParameter("dni");
-        String contraseña = request.getParameter("password");
+        String contrasena = request.getParameter("password");
         String idCatastro = request.getParameter("id_catastro");
         String numero_parcela = request.getParameter("numero_parcela");
         String latitud = request.getParameter("latitud");
         String longitud = request.getParameter("longitud");
-        
-        
+
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO usuarios (dni,nombre, contraseña,id_catastro) VALUES (?, ?)");
+            PreparedStatement stmt = conn.prepareStatement("INSERT INTO cliente (dni,nombre, contraseña,id_catastro) VALUES (?, ?,?,?)");
+            PreparedStatement stmt1 = conn.prepareStatement(" INSERT INTO parcela (id_catastro, numero_parcela) VALUES  (?, ?)");
+            PreparedStatement stmt2 = conn.prepareStatement("INSERT INTO puntos (numero_parcela, latitud, longitud) VALUES (?, ?,?)");
             stmt.setString(1, dni);
-            stmt.setString(2, contraseña);
+            stmt.setString(2, nombre);
+            stmt.setString(3, contrasena);
+            stmt.setString(4, idCatastro);
+            stmt1.setString(1, idCatastro);
+            stmt1.setString(2, numero_parcela);
+            stmt2.setString(1, numero_parcela);
+            stmt2.setString(2, latitud);
+            stmt2.setString(2, longitud);
+
             stmt.executeUpdate();
+            stmt1.executeUpdate();
+            stmt2.executeUpdate();
             response.sendRedirect("login.jsp");
         } catch (Exception e) {
             e.printStackTrace();
@@ -221,7 +232,7 @@ public class Controlador extends HttpServlet {
         }
     }
 
-     private void agregarAgricultor(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void agregarAgricultor(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String nombre = request.getParameter("nombre");
         String dni = request.getParameter("dni");
         String contrasena = request.getParameter("contrasena");
