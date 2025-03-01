@@ -23,7 +23,7 @@
         <h1>Bienvenido, <%= nombre %></h1>
         <p>Rol: <%= tipo %></p>
         
-        <% if ("administrador".equals(tipo)) { %>
+        <% if ("admin".equals(tipo)) { %>
             <form action="ControladorServlet?accion=editarAgricultores" method="POST">
                 <input type="submit" value="Añadir Agricultores">
             </form>
