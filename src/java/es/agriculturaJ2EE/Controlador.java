@@ -1,5 +1,6 @@
 package es.agriculturaJ2EE;
 
+import es.agriculturaJ2EE.conexion.Conexion;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -18,10 +19,9 @@ import javax.servlet.http.HttpSession;
 
 public class Controlador extends HttpServlet {
 
-    private static final long serialVersionUID = 1L;
-    private static final String URL = "jdbc:mysql://localhost:3306/agricultura";
-    private static final String USER = "root";
-    private static final String PASSWORD = "";
+    private static String URL = "jdbc:mysql://localhost:3306/agricultura";
+    private static String USER = "root";
+    private static String PASSWORD = "";
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         processRequest(request, response);
@@ -35,6 +35,9 @@ public class Controlador extends HttpServlet {
         String action = request.getParameter("action");
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
+         /*Creamos una instancia de la clase conexion*/
+        Conexion conexion = new Conexion();
+        HttpSession session = request.getSession(true);
 
         try {
 
@@ -50,27 +53,46 @@ public class Controlador extends HttpServlet {
                 ruta = "/menu.jsp";
 
             }
-            if ("Registrar".equals(botonSeleccionado)) {
+            else if ("Registrar".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
 
             }
-            if ("Salir".equals(botonSeleccionado)) {
+            else if ("Salir".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/login.jsp";
 
             }
-            if ("Confirmar".equals(botonSeleccionado)) {
+            else if ("Confirmar".equals(botonSeleccionado)) {
                 String nombre = request.getParameter("nombre");
                 String dni = request.getParameter("dni");
-                String contraseña = request.getParameter("password");
+                String contrasena = request.getParameter("password");
                 String idCatastro = request.getParameter("id_catastro");
                 String numero_parcela = request.getParameter("numero_parcela");
                 String latitud = request.getParameter("latitud");
                 String longitud = request.getParameter("longitud");
-
+                
+                System.out.println(nombre);
+                System.out.println(dni);
+                System.out.println(contrasena);
+                System.out.println(idCatastro);
+                System.out.println(numero_parcela);
+                System.out.println(latitud);
+                System.out.println(longitud);
+                
+                
+                boolean comprobar=conexion.insertarCliente(nombre, dni, contrasena, idCatastro, numero_parcela, latitud, longitud);
+                 if (comprobar) {
+                    session.setAttribute("registroMensaje", "El usuario " + nombre + " fue guardado correctamente");
+                    ruta = "/registro.jsp";
+                } else {
+                    session.setAttribute("registroMensaje", "No se pudo crear el registro, introduce otro usuario");
+                    ruta ="/registro.jsp";
+                }
+                
             }
-            rd = getServletContext().getRequestDispatcher(ruta);
+            /*Redirigo la peticion */
+           rd = getServletContext().getRequestDispatcher(ruta);
             rd.forward(request, response);
 
         } finally {
@@ -100,37 +122,7 @@ public class Controlador extends HttpServlet {
         }
     }
 
-    private void registro(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String nombre = request.getParameter("nombre");
-        String dni = request.getParameter("dni");
-        String contrasena = request.getParameter("password");
-        String idCatastro = request.getParameter("id_catastro");
-        String numero_parcela = request.getParameter("numero_parcela");
-        String latitud = request.getParameter("latitud");
-        String longitud = request.getParameter("longitud");
-
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO cliente (dni,nombre, contraseña,id_catastro) VALUES (?, ?,?,?)");
-            PreparedStatement stmt1 = conn.prepareStatement(" INSERT INTO parcela (id_catastro, numero_parcela) VALUES  (?, ?)");
-            PreparedStatement stmt2 = conn.prepareStatement("INSERT INTO puntos (numero_parcela, latitud, longitud) VALUES (?, ?,?)");
-            stmt.setString(1, dni);
-            stmt.setString(2, nombre);
-            stmt.setString(3, contrasena);
-            stmt.setString(4, idCatastro);
-            stmt1.setString(1, idCatastro);
-            stmt1.setString(2, numero_parcela);
-            stmt2.setString(1, numero_parcela);
-            stmt2.setString(2, latitud);
-            stmt2.setString(2, longitud);
-
-            stmt.executeUpdate();
-            stmt1.executeUpdate();
-            stmt2.executeUpdate();
-            response.sendRedirect("login.jsp");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    
 
     private void cambiarContraseña(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String usuario = request.getParameter("usuario");
@@ -306,6 +298,10 @@ public class Controlador extends HttpServlet {
             e.printStackTrace();
             response.sendRedirect("añadir_agricultores.jsp?error=Error en la base de datos");
         }
+    }
+
+    private void registro() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

@@ -15,22 +15,22 @@
         
          <form method="POST" action="Controlador">
                 <label>Nombre:</label>
-                <input type="text" name="nombre" required>
+                <input type="text" name="nombre" >
                 <label>Apellidos:</label>
-                <input type="text" name="apellidos" required>
+                <input type="text" name="apellidos" >
                 <label>DNI:</label>
-                <input type="text" name="dni" required>
+                <input type="text" name="dni" >
                 <label>Id Catastro:</label>
-                <input type="text" name="id_catastro" required>
+                <input type="text" name="id_catastro" >
                 <label>Número Parcela:</label>
-                <input type="text" name="numero_parcela" required>
+                <input type="text" name="numero_parcela" >
                 <label>Latitud:</label>
-                <input type="text" name="latitud" required>
+                <input type="text" name="latitud" >
                 <label>Longitud:</label>
-                <input type="text" name="longitud" required>
+                <input type="text" name="longitud" >
                 <label>Contraseña:</label>
-                <input type="password" name="password" required>
-                <input type="submit" name="enviar" value="Confirmar">
+                <input type="password" name="password" >
+                <input type="submit" value="Confirmar" name="enviar" /><br><br>
             </form>
     </body>
 </html>
