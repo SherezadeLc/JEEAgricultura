@@ -96,7 +96,7 @@
             <h2>Editar Parcelas</h2>
             <form method="POST" action="Controlador">
                 <label>DNI:</label>
-                <input type="text" name="dni">
+                <input type="text" name="dni" >
                 <button type="submit" name="enviar" value="editar_parcela">Editar parcelas</button><br><br>
             </form>
 
@@ -107,42 +107,38 @@
                     <th>Número Parcela</th>
                     <th>Acciones</th>
                 </tr>
-                <%
-                    // Obtener la lista de parcelas desde la sesión
-                    ArrayList<Parcela> parcelas = (ArrayList<Parcela>) session.getAttribute("parcelas");
 
-                    // Verificar si la lista no es nula y tiene elementos
+                <!-- Mostrar las parcelas desde el ArrayList de la sesión -->
+                <%
+                    // Obtener el ArrayList de parcelas desde la sesión
+                    ArrayList<Parcela> parcelas = (ArrayList<Parcela>) session.getAttribute("parcelas");
                     if (parcelas != null && !parcelas.isEmpty()) {
                         for (int i = 0; i < parcelas.size(); i++) {
                 %>
                 <tr>
-                    <td><%= parcelas.get(i).getIdParcela()%></td>
-                    <td><%= parcelas.get(i).getIdCatastro()%></td>
-                    <td><%= parcelas.get(i).getNumeroParcela()%></td>
+                    <td><%=parcelas.get(i).getIdParcela()%></td>
+                    <td><%=parcelas.get(i).getIdCatastro()%></td>
+                    <td><%=parcelas.get(i).getNumeroParcela()%></td>
                     <td>
                         <!-- Botón Editar -->
                         <form action="Controlador" method="GET" style="display:inline-block;">
-                            <input type="hidden" name="id_parcela" value="<%= parcelas.get(i).getIdParcela()%>">
-                            <input type="submit" value="Editar">
+                            <input type="hidden" name="id_parcela" value="<%=parcelas.get(i).getIdParcela()%>">
+                            <input type="submit"name="enviar" value="editar" >
                         </form>
 
                         <!-- Botón Eliminar -->
-                        <form action="Eliminar_Parcela" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta parcela?')" style="display:inline-block;">
-                            <input type="hidden" name="id_parcela" value="<%= parcelas.get(i).getIdParcela()%>">
-                            <input type="submit" name="eliminar" value="Eliminar">
+                        <form action="Controlador" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta parcela?')" style="display:inline-block;">
+                            <input type="hidden" name="id_parcela" value="<%=parcelas.get(i).getIdParcela()%>">
+                            <input type="submit" name="enviar" value="eliminar">
                         </form>
                     </td>
                 </tr>
-                <%
-                    }
-                } else {
-                %>
+                <% }
+            } else { %>
                 <tr>
-                    <td colspan="4" style="text-align:center;">No hay parcelas registradas.</td>
+                    <td colspan="4" style="text-align:center;">No hay parcelas registradas para el DNI introducido.</td>
                 </tr>
-                <%
-                    }
-                %>
+                <% }%>
             </table>
 
             <div class="boton-volver">

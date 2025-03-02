@@ -330,14 +330,14 @@ public class Conexion extends HttpServlet {
     }
 
 // Método para verificar si existen puntos asociados a una parcela
-    public ResultSet verificarPuntosParcela(String idParcela, String dniCliente) {
+    public ResultSet verificarPuntosParcela(String idParcela) {
         ResultSet resultSet = null;
-        String query = "SELECT * FROM puntos_parcela WHERE id_parcela = ? AND dni_cliente = ?";
+        String query = "SELECT * FROM puntos_parcela WHERE id_parcela = ? ";
 
         try {
             PreparedStatement preparedStatement = conexion.prepareStatement(query);
             preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
-            preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
+           
 
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
@@ -348,14 +348,14 @@ public class Conexion extends HttpServlet {
     }
 
     // Método para eliminar el punto de asociación de la parcela
-    public boolean eliminarPuntoAsociado(String idParcela, String dniCliente) {
-        String query = "DELETE FROM puntos_parcela WHERE id_parcela = ? AND dni_cliente = ?";
+    public boolean eliminarPuntoAsociado(String idParcela) {
+        String query = "DELETE FROM puntos_parcela WHERE id_parcela = ? ";
         boolean exito = false;
 
         try {
             PreparedStatement preparedStatement = conexion.prepareStatement(query);
             preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
-            preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
+          
 
             int filasAfectadas = preparedStatement.executeUpdate();
             if (filasAfectadas > 0) {
@@ -369,14 +369,14 @@ public class Conexion extends HttpServlet {
     }
 
     // Método para eliminar la parcela de la base de datos
-    public boolean eliminarParcela(String idParcela, String dniCliente) {
-        String query = "DELETE FROM parcela WHERE id_parcela = ? AND dni_cliente = ?";
+    public boolean eliminarParcela(String idParcela) {
+        String query = "DELETE FROM parcela WHERE id_parcela = ? ";
         boolean exito = false;
 
         try {
             PreparedStatement preparedStatement = conexion.prepareStatement(query);
             preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
-            preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
+            
 
             int filasAfectadas = preparedStatement.executeUpdate();
             if (filasAfectadas > 0) {

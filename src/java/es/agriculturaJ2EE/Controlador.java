@@ -204,36 +204,54 @@ public class Controlador extends HttpServlet {
                 }
 
             } else if ("editar_parcela".equals(botonSeleccionado)) {
-                ruta = "/editar_parcela.jsp";
                 String dni = request.getParameter("dni");
-                ResultSet recogerParcelas = conexion.listarParcelas(dni);
-                /*Creo el arrayList de productos llamado todosLibros*/
-                ArrayList<Parcela> todasParcelas = new ArrayList();
 
-                try {
-                    /*Uso el metodo .next() para recoger los registros extraidos por resulset */
-                    while (recogerParcelas.next()) {
-                        String pidParcela = recogerParcelas.getString("titulo");
-                        String pidCatastro = recogerParcelas.getString("autor");
-                        String pnumeroParcela = recogerParcelas.getString("editorial");
-                        
+                if (dni != null && !dni.isEmpty()) { // Validación de DNI
+                    ResultSet recogerParcelas = conexion.listarParcelas(dni);
 
-                        /*Creo un nuevo Objeto producto con los datos correspondientes a cada libro de la BD */
-                        Parcela datosParcela = new Parcela(pidParcela, pidCatastro, pnumeroParcela);
+                    if (recogerParcelas != null) {
+                        ArrayList<Parcela> todasParcelas = new ArrayList<>();
 
-                        /*Añado al arrayList creado el producto creado con la informacion de los libros extraidos de la Bd*/
-                        todasParcelas.add(datosParcela);
-                        session.setAttribute("parcela", todasParcelas);
+                        try {
+                            while (recogerParcelas.next()) {
+                                // Obtiene los datos reales de la base de datos
+                                String pidParcela = recogerParcelas.getString("id_parcela");
+                                String pidCatastro = recogerParcelas.getString("id_catastro");
+                                String pnumeroParcela = recogerParcelas.getString("numero_parcela");
 
-                        ruta = "/editar_parcela.jsp";
+                                Parcela datosParcela = new Parcela(pidParcela, pidCatastro, pnumeroParcela);
+                                todasParcelas.add(datosParcela);
+                            }
+
+                            if (!todasParcelas.isEmpty()) {
+                                session.setAttribute("parcelas", todasParcelas);
+                            } else {
+                                session.setAttribute("parcelas", null); // Si no hay parcelas
+                            }
+
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        System.out.println("El ResultSet es NULL, posiblemente la consulta SQL falló.");
                     }
-                } catch (SQLException e) {
-                    System.out.println(e.getMessage());
+                } else {
+                    System.out.println("DNI no válido o vacío.");
                 }
 
-                
-
+                ruta = "/editar_parcela.jsp"; // Ruta para la página JSP
             } else if ("Crear_trabajo".equals(botonSeleccionado)) {
+                // Aseguramos que la ruta esté correcta
+                ruta = "/registro.jsp";
+
+            }else if ("eliminar".equals(botonSeleccionado)) {
+                String id_parcela = request.getParameter("id_parcela");
+                ResultSet recogerParcelas = conexion.listarParcelas(id_parcela);
+                
+                // Aseguramos que la ruta esté correcta
+                ruta = "/registro.jsp";
+
+            }else if ("editar".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
 
@@ -276,21 +294,6 @@ public class Controlador extends HttpServlet {
 
         } finally {
             out.close();
-        }
-    }
-
-    private void listarParcelas(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM parcelas");
-            ResultSet rs = stmt.executeQuery();
-            List<String> parcelas = new ArrayList<>();
-            while (rs.next()) {
-                parcelas.add(rs.getString("nombre"));
-            }
-            request.setAttribute("parcelas", parcelas);
-            request.getRequestDispatcher("listarParcelas.jsp").forward(request, response);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -613,14 +616,14 @@ public class Controlador extends HttpServlet {
 
                 // Realizar la verificación en la base de datos
                 conexion.conectarBaseDatos();
-                ResultSet resultadoReferencias = conexion.verificarPuntosParcela(idParcela, dniCliente);
+                ResultSet resultadoReferencias = conexion.verificarPuntosParcela(idParcela);
 
                 if (resultadoReferencias.next()) {
                     // Eliminar puntos de asociación
-                    boolean eliminarPuntoAsociado = conexion.eliminarPuntoAsociado(idParcela, dniCliente);
+                    boolean eliminarPuntoAsociado = conexion.eliminarPuntoAsociado(idParcela);
                     if (eliminarPuntoAsociado) {
                         // Eliminar parcela
-                        boolean eliminarParcela = conexion.eliminarParcela(idParcela, dniCliente);
+                        boolean eliminarParcela = conexion.eliminarParcela(idParcela);
                         if (eliminarParcela) {
                             session.setAttribute("mensaje", "La parcela ha sido eliminada correctamente.");
                         } else {
@@ -648,94 +651,6 @@ public class Controlador extends HttpServlet {
         }
     }
 
-    /*
-
-public class Conexion {
-
-    private Connection conexion;
-
-    // Método para conectar a la base de datos
-    public void conectarBaseDatos() {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver"); // Registrar el driver
-            conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/agricultura", "root", "");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Método para verificar si existen puntos asociados a una parcela
-    public ResultSet verificarPuntosParcela(String idParcela, String dniCliente) {
-        ResultSet resultSet = null;
-        String query = "SELECT * FROM puntos_parcela WHERE id_parcela = ? AND dni_cliente = ?";
-        
-        try {
-            PreparedStatement preparedStatement = conexion.prepareStatement(query);
-            preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
-            preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
-            
-            resultSet = preparedStatement.executeQuery();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        
-        return resultSet;
-    }
-
-    // Método para eliminar el punto de asociación de la parcela
-    public boolean eliminarPuntoAsociado(String idParcela, String dniCliente) {
-        String query = "DELETE FROM puntos_parcela WHERE id_parcela = ? AND dni_cliente = ?";
-        boolean exito = false;
-
-        try {
-            PreparedStatement preparedStatement = conexion.prepareStatement(query);
-            preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
-            preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
-            
-            int filasAfectadas = preparedStatement.executeUpdate();
-            if (filasAfectadas > 0) {
-                exito = true;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return exito;
-    }
-
-    // Método para eliminar la parcela de la base de datos
-    public boolean eliminarParcela(String idParcela, String dniCliente) {
-        String query = "DELETE FROM parcela WHERE id_parcela = ? AND dni_cliente = ?";
-        boolean exito = false;
-
-        try {
-            PreparedStatement preparedStatement = conexion.prepareStatement(query);
-            preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
-            preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
-            
-            int filasAfectadas = preparedStatement.executeUpdate();
-            if (filasAfectadas > 0) {
-                exito = true;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return exito;
-    }
-
-    // Cerrar la conexión a la base de datos
-    public void cerrarConexion() {
-        try {
-            if (conexion != null) {
-                conexion.close();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-}
-     */
     private void registro() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
