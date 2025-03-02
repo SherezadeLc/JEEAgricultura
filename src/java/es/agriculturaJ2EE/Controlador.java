@@ -3,6 +3,7 @@ package es.agriculturaJ2EE;
 import es.agriculturaJ2EE.conexion.Conexion;
 import es.agriculturaJ2EE.modelo.Cliente;
 import es.agriculturaJ2EE.modelo.Parcela;
+import es.agriculturaJ2EE.modelo.Trabajo;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -650,6 +651,48 @@ public class Controlador extends HttpServlet {
             out.close();
         }
     }
+    public class ElegirTrabajo extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        String dniAgricultor = (String) session.getAttribute("dni");
+
+        if (dniAgricultor == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        Conexion conexion = new Conexion();
+        int idAgricultor = conexion.obtenerIdAgricultorPorDni(dniAgricultor);
+        List<Trabajo> trabajosDisponibles = conexion.obtenerTrabajosDisponibles(idAgricultor);
+        List<Trabajo> trabajosAsignados = conexion.obtenerTrabajosAsignados(idAgricultor);
+
+        request.setAttribute("trabajosDisponibles", trabajosDisponibles);
+        request.setAttribute("trabajosAsignados", trabajosAsignados);
+        request.getRequestDispatcher("elegirTrabajo.jsp").forward(request, response);
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        String dniAgricultor = (String) session.getAttribute("dni");
+
+        if (dniAgricultor == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        int idAgricultor = new Conexion().obtenerIdAgricultorPorDni(dniAgricultor);
+        int idTrabajo = Integer.parseInt(request.getParameter("id_trabajo"));
+
+        Conexion conexion = new Conexion();
+        boolean asignado = conexion.asignarTrabajo(idTrabajo, idAgricultor);
+
+        if (asignado) {
+            response.sendRedirect("ElegirTrabajoServlet?mensaje=Trabajo asignado correctamente");
+        } else {
+            response.sendRedirect("ElegirTrabajoServlet?mensaje=Error al asignar el trabajo");
+        }
+    }
+}
 
     private void registro() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
