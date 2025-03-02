@@ -1,6 +1,7 @@
 package es.agriculturaJ2EE;
 
 import es.agriculturaJ2EE.conexion.Conexion;
+import es.agriculturaJ2EE.modelo.Cliente;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -475,6 +476,76 @@ public class Controlador extends HttpServlet {
             response.sendRedirect("editar_agricultor.jsp?error=Error en la base de datos");
         }
     }
+    private static String EDITAR_CLIENTE = "/editar_cliente.jsp";
+
+private void editarCliente(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    String action = request.getParameter("action");
+    response.setContentType("text/html;charset=UTF-8");
+    PrintWriter out = response.getWriter();
+    Conexion conexion = new Conexion();
+    HttpSession session = request.getSession();
+    
+    try {
+        RequestDispatcher rd = null;
+        String ruta = "";
+
+        if ("EditarCliente".equals(action)) {
+            // Obtener ID del cliente a editar
+            String idCliente = request.getParameter("id_cliente");
+
+            Cliente cliente = null;
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                 PreparedStatement stmt = conn.prepareStatement("SELECT * FROM cliente WHERE id_cliente = ?")) {
+                stmt.setInt(1, Integer.parseInt(idCliente));
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()) {
+                    cliente = new Cliente(
+                        rs.getInt("id_cliente"),
+                        rs.getString("nombre"),
+                        rs.getString("dni"),
+                        rs.getString("id_catastro")
+                    );
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            request.setAttribute("cliente", cliente);
+            ruta = EDITAR_CLIENTE;
+
+        } else if ("ActualizarCliente".equals(action)) {
+            // Obtener datos del formulario
+            String idCliente = request.getParameter("id_cliente");
+            String nombre = request.getParameter("nombre");
+            String dni = request.getParameter("dni");
+            String idCatastro = request.getParameter("id_catastro");
+
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                 PreparedStatement stmt = conn.prepareStatement(
+                    "UPDATE cliente SET nombre = ?, dni = ?, id_catastro = ? WHERE id_cliente = ?")) {
+                stmt.setString(1, nombre);
+                stmt.setString(2, dni);
+                stmt.setString(3, idCatastro);
+                stmt.setInt(4, Integer.parseInt(idCliente));
+
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            response.sendRedirect("ListarClientesServlet");
+            return;
+        }
+
+        rd = getServletContext().getRequestDispatcher(ruta);
+        rd.forward(request, response);
+
+    } finally {
+        out.close();
+    }
+}
+
 
     private void registro() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
