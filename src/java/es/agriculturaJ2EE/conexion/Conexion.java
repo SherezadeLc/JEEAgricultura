@@ -32,6 +32,7 @@ public class Conexion extends HttpServlet {
     private String url;
     private String usuario;
     private String contrasena;
+    private Object preparedStatement;
 
     public Conexion() {
         this.url = "jdbc:mysql://localhost/agriculturaj2ee";
@@ -438,6 +439,7 @@ public class Conexion extends HttpServlet {
         }
     }
   public boolean agregarAgricultor(String nombre, String dni, String contrasena) {
+      conectarBaseDatos(); 
         // Consulta para verificar si el DNI ya existe
         String verificarDniQuery = "SELECT * FROM agricultores WHERE dni = ?";
         
@@ -488,6 +490,22 @@ public class Conexion extends HttpServlet {
         return exito;  // Retorna true si la inserción fue exitosa, false si no lo fue
     }
   
-  
+  public ResultSet editarCliente(String idCliente) {
+      /*Creamos un objeto statement*/
+        Statement stmt;
+        try {
+            stmt = conexion.createStatement();
+            String sqlStr = "SELECT * FROM cliente WHERE dni = ?";
+            PreparedStatement selectStmt = conexion.prepareStatement(sqlStr);
+            ResultSet rset = stmt.executeQuery(sqlStr);
+            
+        } catch (SQLException ex) {
+            return null;
+        }
+        return null;
+        
+        
+      
+  }
   
 }

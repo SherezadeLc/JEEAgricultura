@@ -114,11 +114,11 @@ public class Controlador extends HttpServlet {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
 
-            }  else if ("Anadir_Agricultores".equals(botonSeleccionado)) {
-                  String dni = request.getParameter("dni");
+            } else if ("Anadir_Agricultores".equals(botonSeleccionado)) {
+                String dni = request.getParameter("dni");
 
                 if (dni != null && !dni.isEmpty()) { // Validación de DNI
-                
+
                     ResultSet recogerAgricultores = conexion.listarAgricultores(dni);
 
                     if (recogerAgricultores != null) {
@@ -129,10 +129,10 @@ public class Controlador extends HttpServlet {
                                 // Obtiene los datos reales de la base de datos
                                 String pid = recogerAgricultores.getString("id_agricultor");
                                 String pnombre = recogerAgricultores.getString("nombre");
-                               
+
                                 String pdni = recogerAgricultores.getString("dni");
 
-                                Agricultor datosAgricultores = new Agricultor(pid, pnombre,pdni);
+                                Agricultor datosAgricultores = new Agricultor(pid, pnombre, pdni);
                                 todosAgricultor.add(datosAgricultores);
                             }
 
@@ -150,11 +150,60 @@ public class Controlador extends HttpServlet {
                     }
                 }
 
-               
-              
                 // Aseguramos que la ruta esté correcta
                 ruta = "/añadir_agricultores.jsp";
-            }else if ("Listar_Clientes".equals(botonSeleccionado)) {
+            } else if ("Listar_Clientes".equals(botonSeleccionado)) {
+                String dniCliente = request.getParameter("id_cliente");
+                
+
+                if (dniCliente != null && !dniCliente.isEmpty()) { // Validación de DNI
+                    ResultSet recogerClientes = conexion.editarCliente(dniCliente);
+
+                    if (recogerClientes != null) {
+                        ArrayList<Cliente> todasClientes = new ArrayList<>();
+
+                        try {
+                            while (recogerClientes.next()) {
+                                // Obtiene los datos reales de la base de datos
+                                
+                                String pidNombre = recogerClientes.getString("nombre");
+                                String piDni = recogerClientes.getString("ddni");
+                                String pidCatastro = recogerClientes.getString("id_catastro");
+
+                                Cliente datosClientes= new Cliente( pidNombre,piDni, pidCatastro);
+                                todasClientes.add(datosClientes);
+                            }
+
+                            if (!todasClientes.isEmpty()) {
+                                session.setAttribute("cliente", todasClientes);
+                            } else {
+                                session.setAttribute("parcelas", null); // Si no hay parcelas
+                            }
+
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        System.out.println("El ResultSet es NULL, posiblemente la consulta SQL falló.");
+                    }
+                } else {
+                    System.out.println("DNI no válido o vacío.");
+                }
+
+                ruta = "/editar_parcela.jsp"; // Ruta para la página JSP
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+
                 // Aseguramos que la ruta esté correcta
                 ruta = "/editar_clientes.jsp";
 
@@ -554,106 +603,104 @@ public class Controlador extends HttpServlet {
         }
     }
 
-private void editarCliente(HttpServletRequest request, HttpServletResponse response) 
-        throws ServletException, IOException {
-    
-    String action = request.getParameter("action");
-    response.setContentType("text/html;charset=UTF-8");
-    
-    // Usa try-with-resources para PrintWriter
-    try (PrintWriter out = response.getWriter()) {
-        
-        RequestDispatcher rd;
-        String ruta = "";
-        
-        // Verificamos la acción que llega por parámetro
-        if ("EditarCliente".equals(action)) {
-            
-            // 1. Obtenemos el parámetro id_cliente
-            String idCliente = request.getParameter("id_cliente");
-            System.out.println("ID del cliente a editar: " + idCliente);
-            
-            // 2. Si está vacío o es nulo, manejamos el error
-            if (idCliente == null || idCliente.isEmpty()) {
-                out.println("Error: No se ha recibido un ID de cliente válido.");
+    private void editarCliente(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String action = request.getParameter("action");
+        response.setContentType("text/html;charset=UTF-8");
+
+        // Usa try-with-resources para PrintWriter
+        try (PrintWriter out = response.getWriter()) {
+
+            RequestDispatcher rd;
+            String ruta = "";
+
+            // Verificamos la acción que llega por parámetro
+            if ("EditarCliente".equals(action)) {
+
+                // 1. Obtenemos el parámetro id_cliente
+                String idCliente = request.getParameter("id_cliente");
+                System.out.println("ID del cliente a editar: " + idCliente);
+
+                // 2. Si está vacío o es nulo, manejamos el error
+                if (idCliente == null || idCliente.isEmpty()) {
+                    out.println("Error: No se ha recibido un ID de cliente válido.");
+                    return;
+                }
+
+                Cliente cliente = null;
+
+                // 3. Conectamos a la base de datos y hacemos la consulta
+                try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                        PreparedStatement stmt = conn.prepareStatement(
+                                "SELECT * FROM cliente WHERE id_cliente = ?")) {
+
+                    stmt.setInt(1, Integer.parseInt(idCliente));
+
+                    // Ejecutamos la consulta
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next()) {
+                            cliente = new Cliente(
+                                    rs.getInt("id_cliente"),
+                                    rs.getString("nombre"),
+                                    rs.getString("dni"),
+                                    rs.getString("id_catastro")
+                            );
+                            System.out.println("Cliente recuperado: " + cliente.getNombre());
+                        } else {
+                            System.out.println("No se encontró ningún cliente con el ID: " + idCliente);
+                        }
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+                // 4. Asignamos el cliente al request
+                request.setAttribute("cliente", cliente);
+
+                // 5. Definimos la ruta de la JSP que mostrará los datos
+                ruta = "/editar_clientes.jsp";
+
+            } else if ("ActualizarCliente".equals(action)) {
+
+                // 1. Obtenemos los datos del formulario
+                String idCliente = request.getParameter("id_cliente");
+                String nombre = request.getParameter("nombre");
+                String dni = request.getParameter("dni");
+                String idCatastro = request.getParameter("id_catastro");
+
+                System.out.println("Actualizando cliente con ID: " + idCliente);
+
+                // 2. Ejecutamos el UPDATE en la base de datos
+                try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                        PreparedStatement stmt = conn.prepareStatement(
+                                "UPDATE cliente SET nombre = ?, dni = ?, id_catastro = ? WHERE id_cliente = ?")) {
+
+                    stmt.setString(1, nombre);
+                    stmt.setString(2, dni);
+                    stmt.setString(3, idCatastro);
+                    stmt.setInt(4, Integer.parseInt(idCliente));
+
+                    stmt.executeUpdate();
+                    System.out.println("Cliente actualizado con éxito.");
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+                // 3. Redirigimos a donde corresponda tras actualizar.
+                //    Ajusta esta ruta a tu necesidad (p.e. volver al listado).
+                //    Si tienes un servlet "ListarClientesServlet", redirígelo allí.
+                response.sendRedirect("Controlador?action=editar_clientes");
                 return;
             }
-            
-            Cliente cliente = null;
-            
-            // 3. Conectamos a la base de datos y hacemos la consulta
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-                 PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM cliente WHERE id_cliente = ?")) {
-                
-                stmt.setInt(1, Integer.parseInt(idCliente));
-                
-                // Ejecutamos la consulta
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        cliente = new Cliente(
-                            rs.getInt("id_cliente"),
-                            rs.getString("nombre"),
-                            rs.getString("dni"),
-                            rs.getString("id_catastro")
-                        );
-                        System.out.println("Cliente recuperado: " + cliente.getNombre());
-                    } else {
-                        System.out.println("No se encontró ningún cliente con el ID: " + idCliente);
-                    }
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            
-            // 4. Asignamos el cliente al request
-            request.setAttribute("cliente", cliente);
-            
-            // 5. Definimos la ruta de la JSP que mostrará los datos
-            ruta = "/editar_clientes.jsp";
-            
-        } else if ("ActualizarCliente".equals(action)) {
-            
-            // 1. Obtenemos los datos del formulario
-            String idCliente = request.getParameter("id_cliente");
-            String nombre = request.getParameter("nombre");
-            String dni = request.getParameter("dni");
-            String idCatastro = request.getParameter("id_catastro");
-            
-            System.out.println("Actualizando cliente con ID: " + idCliente);
-            
-            // 2. Ejecutamos el UPDATE en la base de datos
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-                 PreparedStatement stmt = conn.prepareStatement(
-                     "UPDATE cliente SET nombre = ?, dni = ?, id_catastro = ? WHERE id_cliente = ?")) {
-                
-                stmt.setString(1, nombre);
-                stmt.setString(2, dni);
-                stmt.setString(3, idCatastro);
-                stmt.setInt(4, Integer.parseInt(idCliente));
-                
-                stmt.executeUpdate();
-                System.out.println("Cliente actualizado con éxito.");
-                
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            
-            // 3. Redirigimos a donde corresponda tras actualizar.
-            //    Ajusta esta ruta a tu necesidad (p.e. volver al listado).
-            //    Si tienes un servlet "ListarClientesServlet", redirígelo allí.
-            response.sendRedirect("Controlador?action=editar_clientes");
-            return;
+
+            // Finalmente, hacemos el forward a la JSP correspondiente
+            rd = getServletContext().getRequestDispatcher(ruta);
+            rd.forward(request, response);
+
         }
-        
-        // Finalmente, hacemos el forward a la JSP correspondiente
-        rd = getServletContext().getRequestDispatcher(ruta);
-        rd.forward(request, response);
-        
     }
-}
-
-
 
     private void editarMaquina(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -842,6 +889,7 @@ private void editarCliente(HttpServletRequest request, HttpServletResponse respo
             }
         }
     }
+
     private void modificarParcela(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         response.setContentType("text/html;charset=UTF-8");
@@ -857,14 +905,13 @@ private void editarCliente(HttpServletRequest request, HttpServletResponse respo
             String botonSeleccionado = request.getParameter("enviar");
 
             // Lógica de login y otras acciones...
-
             // Nueva acción para modificar parcelas
             if ("ModificarParcelas".equals(botonSeleccionado)) {
                 // Llamar al servlet ModificarParcelasServlet
                 request.getRequestDispatcher("/ModificarParcelasServlet").forward(request, response);
-            } 
+            }
             // Otras acciones, como "Anadir_Agricultores", "Anadir_Maquinas", etc.
-            
+
             /*Redirigo la peticion */
             rd = getServletContext().getRequestDispatcher(ruta);
             rd.forward(request, response);
@@ -872,6 +919,61 @@ private void editarCliente(HttpServletRequest request, HttpServletResponse respo
         } finally {
             out.close();
         }
+    }
+
+    private void eliminarCliente(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        // 1. Definimos el tipo de contenido de la respuesta (opcional, pero recomendable)
+        response.setContentType("text/html;charset=UTF-8");
+
+        // 2. Obtenemos el parámetro 'id_cliente' que nos llega en la URL o formulario
+        String idCliente = request.getParameter("id_cliente");
+        System.out.println("ID del cliente a eliminar: " + idCliente);
+
+        // 3. Validamos que el parámetro no sea nulo ni vacío
+        if (idCliente == null || idCliente.isEmpty()) {
+            // Si no hay un id válido, mostramos un mensaje o redirigimos a un error
+            try (PrintWriter out = response.getWriter()) {
+                out.println("Error: No se recibió un ID de cliente válido.");
+            }
+            return;
+        }
+
+        // 4. Convertimos el id a entero
+        int idClienteInt;
+        try {
+            idClienteInt = Integer.parseInt(idCliente);
+        } catch (NumberFormatException e) {
+            // Si no se puede convertir a entero, es un error
+            try (PrintWriter out = response.getWriter()) {
+                out.println("Error: El ID de cliente no es un número válido.");
+            }
+            return;
+        }
+
+        // 5. Conectamos a la base de datos y ejecutamos el DELETE
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                PreparedStatement stmt = conn.prepareStatement("DELETE FROM cliente WHERE id_cliente = ?")) {
+
+            stmt.setInt(1, idClienteInt); // Reemplaza la interrogación por el valor del id
+
+            // Ejecutamos la sentencia DELETE
+            int filasAfectadas = stmt.executeUpdate();
+
+            if (filasAfectadas > 0) {
+                System.out.println("Cliente eliminado con éxito.");
+            } else {
+                System.out.println("No se encontró ningún cliente con ese ID para eliminar.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // 6. Redirigimos a donde corresponda tras eliminar.
+        //    Ajusta esta ruta a lo que necesites (por ejemplo, volver a la lista de clientes)
+        response.sendRedirect("Controlador?action=ListarClientes");
     }
 
     private void registro() {

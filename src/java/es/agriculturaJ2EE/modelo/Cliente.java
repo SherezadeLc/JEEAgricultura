@@ -18,6 +18,12 @@ public class Cliente {
         this.idCatastro = idCatastro;
     }
 
+    public Cliente(String nombre, String dni, String idCatastro) {
+        this.nombre = nombre;
+        this.dni = dni;
+        this.idCatastro = idCatastro;
+    }
+
     public int getId() { 
         return id; 
     }

@@ -84,34 +84,39 @@
     </head>
     <body>
         <div class="contenedor">
-            <h2>Detalles del Cliente</h2>
+            <h2>Editar Cliente</h2>
+
             <%
                 Cliente cliente = (Cliente) request.getAttribute("cliente");
-                if (cliente != null) {
+                if (cliente == null) {
+                    out.println("<p>Error: No se encontró el cliente.</p>");
+                } else {
             %>
-            <table>
-                <tr>
-                    <td><strong>Nombre:</strong></td>
-                    <td><%= cliente.getNombre()%></td>
-                </tr>
-                <tr>
-                    <td><strong>DNI:</strong></td>
-                    <td><%= cliente.getDni()%></td>
-                </tr>
-                <tr>
-                    <td><strong>Nº Catastro:</strong></td>
-                    <td><%= cliente.getIdCatastro()%></td>
-                </tr>
-            </table>
-            <% } else { %>
-            <p>Error al cargar el cliente.</p>
-            <% }%>
-            <br>
-            <form action="Controlador" method="GET">
-                <input type="hidden" name="action" value="EditarCliente">
-                <input type="hidden" name="id_cliente" value="${cliente.id_cliente}">
-                <button type="submit">Editar</button>
+
+            <form action="ClienteControlador" method="POST">
+                <input type="hidden" name="action" value="ActualizarCliente">
+                <input type="hidden" name="id_cliente" value="<%= cliente.getId()%>">
+
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" value="<%= cliente.getNombre()%>" required><br><br>
+
+                <label for="dni">DNI:</label>
+                <input type="text" id="dni" name="dni" value="<%= cliente.getDni()%>" required><br><br>
+
+                <label for="id_catastro">ID Catastro:</label>
+                <input type="text" id="id_catastro" name="id_catastro" value="<%= cliente.getIdCatastro()%>" required><br><br>
+
+                <input type="submit" value="Actualizar Cliente">
+                <button><a href="Controlador?action=EliminarCliente&id_cliente=${cliente.id_cliente}"
+                   onclick="return confirm('¿Estás seguro de eliminar este cliente?');">
+                    Eliminar
+                </a></button>
+                
             </form>
+
+            <%
+                }
+            %>
         </div>
     </body>
 
