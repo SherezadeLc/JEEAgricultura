@@ -64,7 +64,7 @@
             <p>Error al cargar el cliente.</p>
         <% } %>
         <br>
-        <form action="ListarClientesServlet" method="GET">
+        <form action="Controlador" method="GET">
             <input type="submit" value="Cancelar">
         </form>
     </div>

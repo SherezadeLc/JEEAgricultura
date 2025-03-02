@@ -562,7 +562,34 @@ private void editarCliente(HttpServletRequest request, HttpServletResponse respo
         out.close();
     }
 }
-
+ private void editarMaquina(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String idMaquina = request.getParameter("idMaquina");
+        String nuevoNombre = request.getParameter("nombre");
+        String nuevoTipo = request.getParameter("tipo");
+        
+        if (idMaquina == null || nuevoNombre == null || nuevoTipo == null || idMaquina.isEmpty() || nuevoNombre.isEmpty() || nuevoTipo.isEmpty()) {
+            response.sendRedirect("editar_maquina.jsp?error=Todos los campos son obligatorios");
+            return;
+        }
+        
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            String sql = "UPDATE maquinas SET nombre = ?, tipo = ? WHERE id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, nuevoNombre);
+            stmt.setString(2, nuevoTipo);
+            stmt.setString(3, idMaquina);
+            int filasActualizadas = stmt.executeUpdate();
+            
+            if (filasActualizadas > 0) {
+                response.sendRedirect("editar_maquina.jsp?mensaje=Máquina actualizada correctamente");
+            } else {
+                response.sendRedirect("editar_maquina.jsp?error=No se pudo actualizar la máquina");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("editar_maquina.jsp?error=Error en la base de datos");
+        }
+    }
 
     private void registro() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
