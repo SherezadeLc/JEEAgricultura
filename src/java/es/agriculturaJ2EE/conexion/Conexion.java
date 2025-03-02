@@ -161,16 +161,15 @@ public class Conexion extends HttpServlet {
     }
 
     public boolean cambiarContraseña(String dni, String nuevaContraseña) {
-        conectarBaseDatos(); // Asegúrate de que este método inicializa `conexion` correctamente
+        conectarBaseDatos(); // Asegurar conexión
 
         if (conexion == null) {
             System.out.println("Error: conexión no establecida.");
             return false;
         }
 
-        // Consultas SQL
-        String sqlSelect = "SELECT nombre FROM agricultor WHERE dni = "+dni+"";
-        String sqlUpdate = "UPDATE agricultor SET contrasena = "+nuevaContraseña+" WHERE dni = "+dni+"";
+        String sqlSelect = "SELECT nombre FROM agricultor WHERE dni = ?";
+        String sqlUpdate = "UPDATE agricultor SET contrasena = ? WHERE dni = ?";
 
         try (
                 PreparedStatement selectStmt = conexion.prepareStatement(sqlSelect);
@@ -181,10 +180,10 @@ public class Conexion extends HttpServlet {
 
             if (rset.next()) { // Si el usuario existe, actualiza la contraseña
                 updateStmt.setString(1, nuevaContraseña);
-                
-                int filasActualizadas = updateStmt.executeUpdate();
+                updateStmt.setString(2, dni);
 
-               
+                int filasActualizadas = updateStmt.executeUpdate();
+                return filasActualizadas > 0; // Devuelve true si al menos 1 fila fue actualizada
             } else {
                 System.out.println("El usuario con DNI " + dni + " no existe.");
             }

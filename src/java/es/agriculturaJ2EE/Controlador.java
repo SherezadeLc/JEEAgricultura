@@ -132,15 +132,22 @@ public class Controlador extends HttpServlet {
                 String dni = request.getParameter("dni");
                 String contrasena = request.getParameter("nueva");
 
-                System.out.println(dni);
-                System.out.println(contrasena);
-                boolean cambiar = conexion.cambiarContraseña(dni, contrasena);
-
-                if (cambiar) {
-                    session.setAttribute("cambioContrasenaMensaje", "El usuario  con dni" + dni + " cambio correctamente la contraseña");
+// Verificar que los parámetros no sean nulos ni vacíos
+                if (dni == null || dni.isEmpty() || contrasena == null || contrasena.isEmpty()) {
+                    session.setAttribute("cambioContrasenaMensaje", "Error: Debe llenar todos los campos.");
                     ruta = "/cambiar_contraseña.jsp";
                 } else {
-                    session.setAttribute("cambioContrasenaMensaje", "No se pudo cambiar la contraseña correctamente");
+                    System.out.println("DNI ingresado: " + dni);
+                    System.out.println("Nueva contraseña ingresada: " + contrasena);
+
+                    boolean cambiar = conexion.cambiarContraseña(dni, contrasena);
+
+                    if (cambiar) {
+                        session.setAttribute("cambioContrasenaMensaje", "El usuario con DNI " + dni + " cambió correctamente la contraseña.");
+                    } else {
+                        session.setAttribute("cambioContrasenaMensaje", "Error: No se pudo cambiar la contraseña. Verifique los datos ingresados.");
+                    }
+
                     ruta = "/cambiar_contraseña.jsp";
                 }
 
@@ -603,7 +610,8 @@ public class Controlador extends HttpServlet {
             response.sendRedirect("editar_maquina.jsp?error=Error al actualizar en la base de datos");
         }
     }
-     private void obtenerDatosMaquina(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    private void obtenerDatosMaquina(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String idMaquina = request.getParameter("id_maquina");
         String nombre = "";
         String tipo = "";
@@ -616,7 +624,7 @@ public class Controlador extends HttpServlet {
 
                 // Conectar a la base de datos
                 try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-                     PreparedStatement stmt = conn.prepareStatement("SELECT * FROM maquinas WHERE id_maquina = ?")) {
+                        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM maquinas WHERE id_maquina = ?")) {
 
                     stmt.setString(1, idMaquina);
                     try (ResultSet rs = stmt.executeQuery()) {
@@ -643,7 +651,7 @@ public class Controlador extends HttpServlet {
         request.setAttribute("estado", estado);
         request.getRequestDispatcher("editar_maquina.jsp").forward(request, response);
     }
-     
+
     private void registro() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
