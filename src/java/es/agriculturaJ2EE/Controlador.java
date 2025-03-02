@@ -1,6 +1,7 @@
 package es.agriculturaJ2EE;
 
 import es.agriculturaJ2EE.conexion.Conexion;
+import es.agriculturaJ2EE.modelo.Agricultor;
 import es.agriculturaJ2EE.modelo.Cliente;
 import es.agriculturaJ2EE.modelo.Parcela;
 import es.agriculturaJ2EE.modelo.Trabajo;
@@ -11,6 +12,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -361,17 +363,65 @@ public class Controlador extends HttpServlet {
     }
 
     private void listarAgricultores(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM agricultores");
-            ResultSet rs = stmt.executeQuery();
-            List<String> agricultores = new ArrayList<>();
-            while (rs.next()) {
-                agricultores.add(rs.getString("nombre"));
+        List<Agricultor> agricultores = new ArrayList<>();
+
+        try {
+            // Cargar el driver de MySQL (necesario en algunos entornos)
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            // Conexión y consulta
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                    PreparedStatement stmt = conn.prepareStatement("SELECT dni, Nombre FROM agricultor");
+                    ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+                    agricultores.add(new Agricultor(rs.getString("dni"), rs.getString("Nombre")));
+                }
             }
-            request.setAttribute("agricultores", agricultores);
-            request.getRequestDispatcher("listarAgricultores.jsp").forward(request, response);
-        } catch (Exception e) {
+        } catch (ClassNotFoundException e) {
+            log("Error: No se encontró el driver de MySQL", e);
+        } catch (SQLException e) {
+            log("Error de conexión a la base de datos", e);
+        }
+
+        // Enviar la lista de agricultores a la vista
+        request.setAttribute("agricultores", agricultores);
+        request.getRequestDispatcher("modificar_agricultores.jsp").forward(request, response);
+    }
+
+    private void modificarAgricultor(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String dni = request.getParameter("dni");
+        String nuevoNombre = request.getParameter("nombre");
+        String nuevaContrasena = request.getParameter("contrasena");
+
+        if (dni == null || nuevoNombre == null || nuevaContrasena == null || dni.isEmpty() || nuevoNombre.isEmpty() || nuevaContrasena.isEmpty()) {
+            response.sendRedirect("editar_agricultores.jsp?error=Todos los campos son obligatorios");
+            return;
+        }
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver"); // Cargar el driver para GlassFish 4.1.1
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+                String sql = "UPDATE agricultor SET nombre = ?, contrasena = ? WHERE dni = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setString(1, nuevoNombre);
+                    stmt.setString(2, nuevaContrasena);
+                    stmt.setString(3, dni);
+                    int filasActualizadas = stmt.executeUpdate();
+
+                    if (filasActualizadas > 0) {
+                        response.sendRedirect("editar_agricultores.jsp?mensaje=Agricultor actualizado correctamente");
+                    } else {
+                        response.sendRedirect("editar_agricultores.jsp?error=No se pudo actualizar el agricultor");
+                    }
+                }
+            }
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            response.sendRedirect("editar_agricultores.jsp?error=Error: No se encontró el driver de MySQL");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.sendRedirect("editar_agricultores.jsp?error=Error en la base de datos");
         }
     }
 

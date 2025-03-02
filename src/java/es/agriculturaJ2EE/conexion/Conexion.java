@@ -417,5 +417,25 @@ public class Conexion extends HttpServlet {
     public boolean asignarTrabajo(int idTrabajo, int idAgricultor) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+    public ResultSet listarAgricultores() {
+        conectarBaseDatos();  // Suponiendo que tienes este método para establecer la conexión
+
+        try {
+            // Consulta SQL para obtener los agricultores
+            String sqlStr = "SELECT id, nombre, telefono, dni FROM agricultor";
+
+            // Prepara la declaración para ejecutar la consulta
+            PreparedStatement stmt = conexion.prepareStatement(sqlStr);
+
+            // Ejecutar la consulta y devolver el resultado como ResultSet
+            return stmt.executeQuery();
+
+        } catch (SQLException ex) {
+            // Imprimir error en consola para depuración
+            ex.printStackTrace();
+            return null;
+        }
+    }
 
 }
