@@ -115,7 +115,7 @@
                             <input type="hidden" name="id_parcela" value="${parcela.idParcela}">
                             <input type="submit" value="Editar">
                         </form>
-                        <form action="editarParcela" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta parcela?')" style="display:inline-block;">
+                        <form action="Eliminar_Parcela" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta parcela?')" style="display:inline-block;">
                             <input type="hidden" name="id_parcela" value="${parcela.idParcela}">
                             <input type="submit" name="eliminar" value="Eliminar">
                         </form>
@@ -125,10 +125,10 @@
         </table>
 
         <div class="boton-volver">
-            <form action="añadir_parcelas.jsp" method="POST">
+            <form action="Controlador?accion=añadir_parcelas" method="POST">
                 <input type="submit" value="Añadir Parcela">
             </form>
-            <form action="menu.jsp" method="POST">
+            <form action="Controlador?accion=menu" method="POST">
                 <input type="submit" value="Volver">
             </form>
         </div>
