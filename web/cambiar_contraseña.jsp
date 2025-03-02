@@ -58,15 +58,18 @@
         <div class="container">
             <h2>Cambiar Contraseña</h2>
             <form action="Controlador" method="post">
-                <input type="hidden" name="accion" value="cambiarContraseña">
-                <label for="actual">Contraseña Actual:</label>
-                <input type="password" id="actual" name="actual" required>
+                <label>DNI:</label>
+                <input type="text" name="dni" value="">
+               
+                
+                <label >Contraseña Actual:</label>
+                <input type="password" id="actual" name="actual" >
 
-                <label for="nueva">Nueva Contraseña:</label>
-                <input type="password" id="nueva" name="nueva" value="" required>
+                <label >Nueva Contraseña:</label>
+                <input type="password" id="nueva" name="nueva" value="" >
 
-                <label for="confirmar">Confirmar Nueva Contraseña:</label>
-                <input type="password" id="confirmar" name="confirmar" required>
+                <label >Confirmar Nueva Contraseña:</label>
+                <input type="password" id="confirmar" name="confirmar" value="" >
 
                 <button type="submit"name="enviar" value="actualizarContrasena">Actualizar Contraseña</button>
             </form>

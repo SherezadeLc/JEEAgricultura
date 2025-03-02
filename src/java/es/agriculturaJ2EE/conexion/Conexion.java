@@ -170,7 +170,7 @@ public class Conexion extends HttpServlet {
 
         // Consultas SQL
         String sqlSelect = "SELECT nombre FROM agricultor WHERE dni = "+dni+"";
-        String sqlUpdate = "UPDATE agricultor SET contrasena = ? WHERE dni = ?";
+        String sqlUpdate = "UPDATE agricultor SET contrasena = "+nuevaContraseña+" WHERE dni = "+dni+"";
 
         try (
                 PreparedStatement selectStmt = conexion.prepareStatement(sqlSelect);
@@ -181,10 +181,10 @@ public class Conexion extends HttpServlet {
 
             if (rset.next()) { // Si el usuario existe, actualiza la contraseña
                 updateStmt.setString(1, nuevaContraseña);
-                updateStmt.setString(2, dni);
+                
                 int filasActualizadas = updateStmt.executeUpdate();
 
-                return filasActualizadas > 0; // Devuelve true si se actualizó al menos una fila
+               
             } else {
                 System.out.println("El usuario con DNI " + dni + " no existe.");
             }
