@@ -114,11 +114,47 @@ public class Controlador extends HttpServlet {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
 
-            } else if ("Anadir_Agricultores".equals(botonSeleccionado)) {
+            }  else if ("Anadir_Agricultores".equals(botonSeleccionado)) {
+                  String dni = request.getParameter("dni");
+
+                if (dni != null && !dni.isEmpty()) { // Validación de DNI
+                
+                    ResultSet recogerAgricultores = conexion.listarAgricultores(dni);
+
+                    if (recogerAgricultores != null) {
+                        ArrayList<Agricultor> todosAgricultor = new ArrayList<>();
+
+                        try {
+                            while (recogerAgricultores.next()) {
+                                // Obtiene los datos reales de la base de datos
+                                String pid = recogerAgricultores.getString("id_agricultor");
+                                String pnombre = recogerAgricultores.getString("nombre");
+                               
+                                String pdni = recogerAgricultores.getString("dni");
+
+                                Agricultor datosAgricultores = new Agricultor(pid, pnombre,pdni);
+                                todosAgricultor.add(datosAgricultores);
+                            }
+
+                            if (!todosAgricultor.isEmpty()) {
+                                session.setAttribute("agricultor", todosAgricultor);
+                            } else {
+                                session.setAttribute("agricultor", null); // Si no hay parcelas
+                            }
+
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        System.out.println("El ResultSet es NULL, posiblemente la consulta SQL falló.");
+                    }
+                }
+
+               
+              
                 // Aseguramos que la ruta esté correcta
                 ruta = "/añadir_agricultores.jsp";
-
-            } else if ("Listar_Clientes".equals(botonSeleccionado)) {
+            }else if ("Listar_Clientes".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
 

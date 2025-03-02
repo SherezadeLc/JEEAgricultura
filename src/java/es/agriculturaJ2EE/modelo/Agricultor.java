@@ -23,11 +23,21 @@ public class Agricultor {
         this.nombre = nombre;
     }
 
+    public Agricultor(int id, String nombre, String dni) {
+        this.id = id;
+        this.nombre = nombre;
+        this.dni = dni;
+    }
+
     public Agricultor(int id, String nombre, String telefono, String dni) {
         this.id = id;
         this.nombre = nombre;
         this.telefono = telefono;
         this.dni = dni;
+    }
+
+    public Agricultor(String pid, String pnombre, String pdni) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public int getId() {

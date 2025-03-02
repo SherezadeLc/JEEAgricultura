@@ -123,7 +123,7 @@
                         <!-- Botón Editar -->
                         <form action="Controlador" method="GET" style="display:inline-block;">
                             <input type="hidden" name="id_parcela" value="<%=parcelas.get(i).getIdParcela()%>">
-                            <input type="submit"name="enviar" value="editar" >
+                            <input type="submit" name="enviar" value="editar" >
                         </form>
 
                         <!-- Botón Eliminar -->

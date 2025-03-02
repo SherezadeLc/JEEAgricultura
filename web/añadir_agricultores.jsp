@@ -1,3 +1,6 @@
+<%@page import="es.agriculturaJ2EE.modelo.Agricultor"%>
+<%@page import="es.agriculturaJ2EE.modelo.Parcela"%>
+<%@page import="java.util.ArrayList"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="javax.servlet.http.HttpSession" %>
@@ -90,17 +93,17 @@
         <div class="contenedor">
             <h2>Añadir Agricultores</h2>
             <!-- Formulario para añadir un agricultor -->
-            <form action="Controlador?action=agregarAgricultor" method="POST">
+            <form action="Controlador" method="POST">
                 <label for="nombre">Nombre:</label>
-                <input type="text" id="nombre" name="nombre" required><br><br>
+                <input type="text" id="nombre" name="nombre" value="" ><br><br>
 
                 <label for="dni">DNI:</label>
-                <input type="text" id="dni" name="dni" required><br><br>
+                <input type="text" id="dni" name="dni"value=""  ><br><br>
 
                 <label for="contrasena">Contraseña:</label>
-                <input type="password" id="contrasena" name="contrasena" required><br><br>
+                <input type="password" id="contrasena" value=""  name="contrasena" ><br><br>
 
-                <input type="submit" name="añadir" value="Añadir">
+                <input type="submit" name="enviar" value="Anadir">
             </form>
 
             <!-- Mensajes de respuesta -->
@@ -117,10 +120,35 @@
             <%
                 }
             %>
+            <form method="POST" action="Controlador">
+                <label>DNI:</label>
+                <input type="text" name="dni" >
+                <button type="submit" name="enviar" value="Anadir_Agricultores">LISTAR</button><br><br>
+            </form>
+            <table border="1">
+                <tr>
+                    <th>ID </th>
+                    <th>NOMBRE</th>
+                    <th>DNI</th>
+                    
+                </tr>
 
-            <a href="editar_agricultores.jsp">
-                <input type="submit" name="volver" value="Volver">
-            </a>
+                <!-- Mostrar las parcelas desde el ArrayList de la sesión -->
+                <%
+                    // Obtener el ArrayList de parcelas desde la sesión
+                    ArrayList<Agricultor> agricultor = (ArrayList<Agricultor>) session.getAttribute("agricultor");
+                    if (agricultor != null && !agricultor.isEmpty()) {
+                        for (int i = 0; i < agricultor.size(); i++) {
+                %>
+                <tr>
+                    <td><%=agricultor.get(i).getId()%></td>
+                    <td><%=agricultor.get(i).getNombre()%></td>
+                    <td><%=agricultor.get(i).getDni()%></td>
+                    
+                </tr>
+                <% }
+                } %>
+            </table>
         </div>
     </body>
 </html>

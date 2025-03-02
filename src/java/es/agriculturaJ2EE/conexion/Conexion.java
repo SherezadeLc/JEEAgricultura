@@ -418,12 +418,12 @@ public class Conexion extends HttpServlet {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    public ResultSet listarAgricultores() {
+    public ResultSet listarAgricultores(String dni) {
         conectarBaseDatos();  // Suponiendo que tienes este método para establecer la conexión
 
         try {
             // Consulta SQL para obtener los agricultores
-            String sqlStr = "SELECT id, nombre, telefono, dni FROM agricultor";
+            String sqlStr = "SELECT * FROM agricultor where dni= "+dni+"";
 
             // Prepara la declaración para ejecutar la consulta
             PreparedStatement stmt = conexion.prepareStatement(sqlStr);
