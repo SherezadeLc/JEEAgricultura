@@ -108,7 +108,9 @@
             <% }%>
             <br>
             <form action="Controlador" method="GET">
-                <input type="submit" value="Cancelar">
+                <input type="hidden" name="action" value="EditarCliente">
+                <input type="hidden" name="id_cliente" value="${cliente.id_cliente}">
+                <button type="submit">Editar</button>
             </form>
         </div>
     </body>

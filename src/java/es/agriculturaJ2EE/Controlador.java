@@ -553,75 +553,107 @@ public class Controlador extends HttpServlet {
             response.sendRedirect("editar_agricultor.jsp?error=Error en la base de datos");
         }
     }
-    private static String EDITAR_CLIENTE = "/editar_cliente.jsp";
 
-    private void editarCliente(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        Conexion conexion = new Conexion();
-        HttpSession session = request.getSession();
-
-        try {
-            RequestDispatcher rd = null;
-            String ruta = "";
-
-            if ("EditarCliente".equals(action)) {
-                // Obtener ID del cliente a editar
-                String idCliente = request.getParameter("id_cliente");
-
-                Cliente cliente = null;
-                try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-                        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM cliente WHERE id_cliente = ?")) {
-                    stmt.setInt(1, Integer.parseInt(idCliente));
-                    ResultSet rs = stmt.executeQuery();
-
-                    if (rs.next()) {
-                        cliente = new Cliente(
-                                rs.getInt("id_cliente"),
-                                rs.getString("nombre"),
-                                rs.getString("dni"),
-                                rs.getString("id_catastro")
-                        );
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-                request.setAttribute("cliente", cliente);
-                ruta = EDITAR_CLIENTE;
-
-            } else if ("ActualizarCliente".equals(action)) {
-                // Obtener datos del formulario
-                String idCliente = request.getParameter("id_cliente");
-                String nombre = request.getParameter("nombre");
-                String dni = request.getParameter("dni");
-                String idCatastro = request.getParameter("id_catastro");
-
-                try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-                        PreparedStatement stmt = conn.prepareStatement(
-                                "UPDATE cliente SET nombre = ?, dni = ?, id_catastro = ? WHERE id_cliente = ?")) {
-                    stmt.setString(1, nombre);
-                    stmt.setString(2, dni);
-                    stmt.setString(3, idCatastro);
-                    stmt.setInt(4, Integer.parseInt(idCliente));
-
-                    stmt.executeUpdate();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-                response.sendRedirect("ListarClientesServlet");
+private void editarCliente(HttpServletRequest request, HttpServletResponse response) 
+        throws ServletException, IOException {
+    
+    String action = request.getParameter("action");
+    response.setContentType("text/html;charset=UTF-8");
+    
+    // Usa try-with-resources para PrintWriter
+    try (PrintWriter out = response.getWriter()) {
+        
+        RequestDispatcher rd;
+        String ruta = "";
+        
+        // Verificamos la acción que llega por parámetro
+        if ("EditarCliente".equals(action)) {
+            
+            // 1. Obtenemos el parámetro id_cliente
+            String idCliente = request.getParameter("id_cliente");
+            System.out.println("ID del cliente a editar: " + idCliente);
+            
+            // 2. Si está vacío o es nulo, manejamos el error
+            if (idCliente == null || idCliente.isEmpty()) {
+                out.println("Error: No se ha recibido un ID de cliente válido.");
                 return;
             }
-
-            rd = getServletContext().getRequestDispatcher(ruta);
-            rd.forward(request, response);
-
-        } finally {
-            out.close();
+            
+            Cliente cliente = null;
+            
+            // 3. Conectamos a la base de datos y hacemos la consulta
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                 PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT * FROM cliente WHERE id_cliente = ?")) {
+                
+                stmt.setInt(1, Integer.parseInt(idCliente));
+                
+                // Ejecutamos la consulta
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        cliente = new Cliente(
+                            rs.getInt("id_cliente"),
+                            rs.getString("nombre"),
+                            rs.getString("dni"),
+                            rs.getString("id_catastro")
+                        );
+                        System.out.println("Cliente recuperado: " + cliente.getNombre());
+                    } else {
+                        System.out.println("No se encontró ningún cliente con el ID: " + idCliente);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            
+            // 4. Asignamos el cliente al request
+            request.setAttribute("cliente", cliente);
+            
+            // 5. Definimos la ruta de la JSP que mostrará los datos
+            ruta = "/editar_clientes.jsp";
+            
+        } else if ("ActualizarCliente".equals(action)) {
+            
+            // 1. Obtenemos los datos del formulario
+            String idCliente = request.getParameter("id_cliente");
+            String nombre = request.getParameter("nombre");
+            String dni = request.getParameter("dni");
+            String idCatastro = request.getParameter("id_catastro");
+            
+            System.out.println("Actualizando cliente con ID: " + idCliente);
+            
+            // 2. Ejecutamos el UPDATE en la base de datos
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                 PreparedStatement stmt = conn.prepareStatement(
+                     "UPDATE cliente SET nombre = ?, dni = ?, id_catastro = ? WHERE id_cliente = ?")) {
+                
+                stmt.setString(1, nombre);
+                stmt.setString(2, dni);
+                stmt.setString(3, idCatastro);
+                stmt.setInt(4, Integer.parseInt(idCliente));
+                
+                stmt.executeUpdate();
+                System.out.println("Cliente actualizado con éxito.");
+                
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            
+            // 3. Redirigimos a donde corresponda tras actualizar.
+            //    Ajusta esta ruta a tu necesidad (p.e. volver al listado).
+            //    Si tienes un servlet "ListarClientesServlet", redirígelo allí.
+            response.sendRedirect("ListarClientesServlet");
+            return;
         }
+        
+        // Finalmente, hacemos el forward a la JSP correspondiente
+        rd = getServletContext().getRequestDispatcher(ruta);
+        rd.forward(request, response);
+        
     }
+}
+
+
 
     private void editarMaquina(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
