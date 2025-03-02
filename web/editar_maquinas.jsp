@@ -1,34 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="javax.servlet.http.HttpSession" %>
-<%
-    // Parámetros de conexión a la base de datos
-    String URL = "jdbc:mysql://localhost:3306/agricultura";
-    String USER = "root";
-    String PASSWORD = "";
-
-    String idMaquina = request.getParameter("id_maquina");
-    String nombre = "";
-    String tipo = "";
-    String estado = "";
-
-    if (idMaquina != null && !idMaquina.isEmpty()) {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            String sql = "SELECT * FROM maquinas WHERE id_maquina = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, idMaquina);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                nombre = rs.getString("nombre");
-                tipo = rs.getString("tipo");
-                estado = rs.getString("estado");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -108,20 +80,19 @@
             <input type="hidden" name="action" value="Editar_Maquina">
             
             <label>ID Máquina:</label>
-            <input type="text" name="id_maquina" value="<%= idMaquina %>" readonly>
+            <input type="text" name="id_maquina" value="${idMaquina}" readonly>
             
             <label>Nombre:</label>
-            <input type="text" name="nombre" value="<%= nombre %>" required>
+            <input type="text" name="nombre" value="${nombre}" required>
             
             <label>Tipo:</label>
-            <input type="text" name="tipo" value="<%= tipo %>" required>
+            <input type="text" name="tipo" value="${tipo}" required>
             
             <label>Estado:</label>
-            <input type="text" name="estado" value="<%= estado %>" required>
-            
+            <input type="text" name="estado" value="${estado}" required>
             <button type="submit">Guardar Cambios</button>
         </form>
-        <a class="back-link" href="Controlador?accion=menu">Volver al menú</a>
+           <a class="back-link" href="Controlador">Volver al menú</a>
     </div>
 </body>
 </html>

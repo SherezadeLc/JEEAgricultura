@@ -73,28 +73,24 @@ public class Controlador extends HttpServlet {
                     if (resultados != null && resultados.next()) {
                         rol = "cliente";
                         nombrePers = resultados.getString("nombre");
-                        
-                        
+
                     } else if (resultado != null && resultado.next()) {
                         rol = "agricultor";
                         nombrePers = resultado.getString("nombre");
-                        
+
                     } else if (resultadoAdmin != null && resultadoAdmin.next()) {
                         rol = "admin";
                         nombrePers = resultadoAdmin.getString("nombre");
-                        
-                        
+
                     }
 
                     if (rol != null) {
                         session.setAttribute("rol", rol);
                         session.setAttribute("nombre", nombrePers);
-                        
 
                         System.out.println("¡Credenciales válidas!");
                         System.out.println(rol);
                         System.out.println(nombrePers);
-                        
 
                         ruta = MENU;
                     } else {
@@ -116,30 +112,30 @@ public class Controlador extends HttpServlet {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/añadir_agricultores.jsp";
 
-            }else if ("Listar_Clientes".equals(botonSeleccionado)) {
+            } else if ("Listar_Clientes".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
 
-            }else if ("Anadir_Maquinas".equals(botonSeleccionado)) {
+            } else if ("Anadir_Maquinas".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/añadir_maquina.jsp";
 
-            }else if ("Elegir_trabajo".equals(botonSeleccionado)) {
+            } else if ("Elegir_trabajo".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
 
-            }else if ("Cambiar_contrasena".equals(botonSeleccionado)) {
+            } else if ("Cambiar_contrasena".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/cambiar_contraseña.jsp";
 
-            }else if ("actualizarContrasena".equals(botonSeleccionado)) {
-                 String dni = request.getParameter("dni");
+            } else if ("actualizarContrasena".equals(botonSeleccionado)) {
+                String dni = request.getParameter("dni");
                 String contrasena = request.getParameter("nueva");
-                
+
                 System.out.println(dni);
                 System.out.println(contrasena);
-                boolean cambiar=conexion.cambiarContraseña(dni,contrasena);
-               
+                boolean cambiar = conexion.cambiarContraseña(dni, contrasena);
+
                 if (cambiar) {
                     session.setAttribute("cambioContrasenaMensaje", "El usuario  con dni" + dni + " cambio correctamente la contraseña");
                     ruta = "/cambiar_contraseña.jsp";
@@ -147,21 +143,18 @@ public class Controlador extends HttpServlet {
                     session.setAttribute("cambioContrasenaMensaje", "No se pudo cambiar la contraseña correctamente");
                     ruta = "/cambiar_contraseña.jsp";
                 }
-                
-               
 
-            }
-            else if ("Anadir_parcelas".equals(botonSeleccionado)) {
+            } else if ("Anadir_parcelas".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/añadir_parcelas.jsp";
 
-            }else if ("Crear_trabajo".equals(botonSeleccionado)) {
+            } else if ("Crear_trabajo".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
 
-            }  else if ("Cerrar_sesion".equals(botonSeleccionado)) {
-                 session.invalidate();
-               
+            } else if ("Cerrar_sesion".equals(botonSeleccionado)) {
+                session.invalidate();
+
                 // Aseguramos que la ruta esté correcta
                 ruta = "/login.jsp";
 
@@ -497,102 +490,160 @@ public class Controlador extends HttpServlet {
     }
     private static String EDITAR_CLIENTE = "/editar_cliente.jsp";
 
-private void editarCliente(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    String action = request.getParameter("action");
-    response.setContentType("text/html;charset=UTF-8");
-    PrintWriter out = response.getWriter();
-    Conexion conexion = new Conexion();
-    HttpSession session = request.getSession();
-    
-    try {
-        RequestDispatcher rd = null;
-        String ruta = "";
+    private void editarCliente(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        Conexion conexion = new Conexion();
+        HttpSession session = request.getSession();
 
-        if ("EditarCliente".equals(action)) {
-            // Obtener ID del cliente a editar
-            String idCliente = request.getParameter("id_cliente");
+        try {
+            RequestDispatcher rd = null;
+            String ruta = "";
 
-            Cliente cliente = null;
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-                 PreparedStatement stmt = conn.prepareStatement("SELECT * FROM cliente WHERE id_cliente = ?")) {
-                stmt.setInt(1, Integer.parseInt(idCliente));
-                ResultSet rs = stmt.executeQuery();
+            if ("EditarCliente".equals(action)) {
+                // Obtener ID del cliente a editar
+                String idCliente = request.getParameter("id_cliente");
 
-                if (rs.next()) {
-                    cliente = new Cliente(
-                        rs.getInt("id_cliente"),
-                        rs.getString("nombre"),
-                        rs.getString("dni"),
-                        rs.getString("id_catastro")
-                    );
+                Cliente cliente = null;
+                try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM cliente WHERE id_cliente = ?")) {
+                    stmt.setInt(1, Integer.parseInt(idCliente));
+                    ResultSet rs = stmt.executeQuery();
+
+                    if (rs.next()) {
+                        cliente = new Cliente(
+                                rs.getInt("id_cliente"),
+                                rs.getString("nombre"),
+                                rs.getString("dni"),
+                                rs.getString("id_catastro")
+                        );
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
+
+                request.setAttribute("cliente", cliente);
+                ruta = EDITAR_CLIENTE;
+
+            } else if ("ActualizarCliente".equals(action)) {
+                // Obtener datos del formulario
+                String idCliente = request.getParameter("id_cliente");
+                String nombre = request.getParameter("nombre");
+                String dni = request.getParameter("dni");
+                String idCatastro = request.getParameter("id_catastro");
+
+                try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                        PreparedStatement stmt = conn.prepareStatement(
+                                "UPDATE cliente SET nombre = ?, dni = ?, id_catastro = ? WHERE id_cliente = ?")) {
+                    stmt.setString(1, nombre);
+                    stmt.setString(2, dni);
+                    stmt.setString(3, idCatastro);
+                    stmt.setInt(4, Integer.parseInt(idCliente));
+
+                    stmt.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+                response.sendRedirect("ListarClientesServlet");
+                return;
             }
 
-            request.setAttribute("cliente", cliente);
-            ruta = EDITAR_CLIENTE;
+            rd = getServletContext().getRequestDispatcher(ruta);
+            rd.forward(request, response);
 
-        } else if ("ActualizarCliente".equals(action)) {
-            // Obtener datos del formulario
-            String idCliente = request.getParameter("id_cliente");
-            String nombre = request.getParameter("nombre");
-            String dni = request.getParameter("dni");
-            String idCatastro = request.getParameter("id_catastro");
-
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-                 PreparedStatement stmt = conn.prepareStatement(
-                    "UPDATE cliente SET nombre = ?, dni = ?, id_catastro = ? WHERE id_cliente = ?")) {
-                stmt.setString(1, nombre);
-                stmt.setString(2, dni);
-                stmt.setString(3, idCatastro);
-                stmt.setInt(4, Integer.parseInt(idCliente));
-
-                stmt.executeUpdate();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-            response.sendRedirect("ListarClientesServlet");
-            return;
+        } finally {
+            out.close();
         }
-
-        rd = getServletContext().getRequestDispatcher(ruta);
-        rd.forward(request, response);
-
-    } finally {
-        out.close();
     }
-}
- private void editarMaquina(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    private void editarMaquina(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
         String idMaquina = request.getParameter("idMaquina");
         String nuevoNombre = request.getParameter("nombre");
         String nuevoTipo = request.getParameter("tipo");
-        
-        if (idMaquina == null || nuevoNombre == null || nuevoTipo == null || idMaquina.isEmpty() || nuevoNombre.isEmpty() || nuevoTipo.isEmpty()) {
+
+        // Validar que los campos no estén vacíos
+        if (idMaquina == null || nuevoNombre == null || nuevoTipo == null
+                || idMaquina.isEmpty() || nuevoNombre.isEmpty() || nuevoTipo.isEmpty()) {
+
             response.sendRedirect("editar_maquina.jsp?error=Todos los campos son obligatorios");
             return;
         }
-        
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            String sql = "UPDATE maquinas SET nombre = ?, tipo = ? WHERE id = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, nuevoNombre);
-            stmt.setString(2, nuevoTipo);
-            stmt.setString(3, idMaquina);
-            int filasActualizadas = stmt.executeUpdate();
-            
-            if (filasActualizadas > 0) {
-                response.sendRedirect("editar_maquina.jsp?mensaje=Máquina actualizada correctamente");
-            } else {
-                response.sendRedirect("editar_maquina.jsp?error=No se pudo actualizar la máquina");
+
+        try {
+            // Cargar el driver de MySQL (necesario en GlassFish)
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            // Establecer la conexión
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                    PreparedStatement stmt = conn.prepareStatement("UPDATE maquinas SET nombre = ?, tipo = ? WHERE id_maquina = ?")) {
+
+                stmt.setString(1, nuevoNombre);
+                stmt.setString(2, nuevoTipo);
+                stmt.setString(3, idMaquina);
+
+                int filasActualizadas = stmt.executeUpdate();
+
+                if (filasActualizadas > 0) {
+                    response.sendRedirect("editar_maquina.jsp?mensaje=Máquina actualizada correctamente");
+                } else {
+                    response.sendRedirect("editar_maquina.jsp?error=No se encontró la máquina a actualizar");
+                }
             }
-        } catch (Exception e) {
+        } catch (ClassNotFoundException e) {
+            System.err.println("Error: No se encontró el driver de MySQL.");
             e.printStackTrace();
-            response.sendRedirect("editar_maquina.jsp?error=Error en la base de datos");
+            response.sendRedirect("editar_maquina.jsp?error=Error interno del servidor");
+        } catch (SQLException e) {
+            System.err.println("Error SQL: " + e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect("editar_maquina.jsp?error=Error al actualizar en la base de datos");
         }
     }
+     private void obtenerDatosMaquina(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String idMaquina = request.getParameter("id_maquina");
+        String nombre = "";
+        String tipo = "";
+        String estado = "";
 
+        if (idMaquina != null && !idMaquina.isEmpty()) {
+            try {
+                // Cargar el driver de MySQL (para evitar problemas en GlassFish)
+                Class.forName("com.mysql.cj.jdbc.Driver");
+
+                // Conectar a la base de datos
+                try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                     PreparedStatement stmt = conn.prepareStatement("SELECT * FROM maquinas WHERE id_maquina = ?")) {
+
+                    stmt.setString(1, idMaquina);
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next()) {
+                            nombre = rs.getString("nombre");
+                            tipo = rs.getString("tipo");
+                            estado = rs.getString("estado");
+                        }
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                System.err.println("Error: No se encontró el driver de MySQL.");
+                e.printStackTrace();
+            } catch (SQLException e) {
+                System.err.println("Error de conexión a la base de datos.");
+                e.printStackTrace();
+            }
+        }
+
+        // Enviar datos como atributos para la vista JSP
+        request.setAttribute("idMaquina", idMaquina);
+        request.setAttribute("nombre", nombre);
+        request.setAttribute("tipo", tipo);
+        request.setAttribute("estado", estado);
+        request.getRequestDispatcher("editar_maquina.jsp").forward(request, response);
+    }
+     
     private void registro() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
