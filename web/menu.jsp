@@ -24,32 +24,32 @@
         <p>Rol: <%= tipo %></p>
         
         <% if ("admin".equals(tipo)) { %>
-            <form action="ControladorServlet?accion=editarAgricultores" method="POST">
-                <input type="submit" value="Anadir_Agricultores">
+            <form action="Controlador" method="POST">
+                <input type="submit" value="Anadir_Agricultores"name="enviar">
             </form>
-            <form action="ControladorServlet?accion=editarClientes" method="POST">
-                <input type="submit" value="Listar_Clientes">
+            <form action="Controlador" method="POST">
+                <input type="submit" value="Listar_Clientes"name="enviar">
             </form>
-            <form action="ControladorServlet?accion=editarMaquinas" method="POST">
-                <input type="submit" value="Anadir_Maquinas">
+            <form action="Controlador" method="POST">
+                <input type="submit" value="Anadir_Maquinas"name="enviar">
             </form>
         <% } else if ("agricultor".equals(tipo)) { %>
-            <form action="ControladorServlet?accion=elegirTrabajo" method="POST">
-                <input type="submit" value="Elegir_trabajo">
+            <form action="Controlador" method="POST">
+                <input type="submit" value="Elegir_trabajo"name="enviar">
             </form>
-            <form action="ControladorServlet?accion=cambiarContraseña" method="POST">
-                <input type="submit" value="Cambiar_contrasena">
+            <form action="Controlador" method="POST">
+                <input type="submit" value="Cambiar_contrasena"name="enviar">
             </form>
         <% } else if ("cliente".equals(tipo)) { %>
-            <form action="ControladorServlet?accion=editarParcela" method="POST">
-                <input type="submit" value="Anadir_parcelas">
+            <form action="Controlador" method="POST">
+                <input type="submit" value="Anadir_parcelas"name="enviar">
             </form>
-            <form action="ControladorServlet?accion=crearTrabajo" method="POST">
-                <input type="submit" value="Crear_trabajo">
+            <form action="Controlador" method="POST">
+                <input type="submit" value="Crear_trabajo"name="enviar">
             </form>
         <% } %>
-        <form action="ControladorServlet?accion=logout" method="POST">
-            <input type="submit" value="Cerrar_sesion">
+        <form action="Controlador" method="POST">
+            <input type="submit" value="Cerrar_sesion" name="enviar">
         </form>
         <% } else { %>
             <p class="alert">Usted no tiene acceso a esta página.</p>
