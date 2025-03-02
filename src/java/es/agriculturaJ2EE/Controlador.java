@@ -245,14 +245,39 @@ public class Controlador extends HttpServlet {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
 
-            }else if ("eliminar".equals(botonSeleccionado)) {
-                String id_parcela = request.getParameter("id_parcela");
-                ResultSet recogerParcelas = conexion.listarParcelas(id_parcela);
-                
-                // Aseguramos que la ruta esté correcta
-                ruta = "/registro.jsp";
+            } else if ("Eliminar".equals(botonSeleccionado)) {
+                // Obtener el ID de la parcela a eliminar
+                String idParcela = request.getParameter("id_parcelas");
 
-            }else if ("editar".equals(botonSeleccionado)) {
+                // Verificar que se ha proporcionado un ID de parcela
+                if (idParcela != null && !idParcela.isEmpty()) {
+                    // Eliminar el punto de asociación (de la tabla puntos_parcela)
+                    boolean eliminarPuntoAsociado = conexion.eliminarPuntoAsociado(idParcela);
+
+                    if (eliminarPuntoAsociado) {
+                        // Si la eliminación del punto de asociación fue exitosa, proceder a eliminar la parcela
+                        boolean eliminarParcela = conexion.eliminarParcela(idParcela);
+
+                        if (eliminarParcela) {
+                            // Si la eliminación de la parcela fue exitosa, establecer mensaje en la sesión
+                            session.setAttribute("mensaje", "La parcela y su punto de asociación han sido eliminados correctamente.");
+                        } else {
+                            // Si hubo un error al eliminar la parcela, establecer mensaje de error
+                            session.setAttribute("mensaje", "Error al eliminar la parcela.");
+                        }
+                    } else {
+                        // Si no se pudo eliminar el punto de asociación, establecer mensaje de error
+                        session.setAttribute("mensaje", "No se pudo eliminar el punto de asociación.");
+                    }
+                } else {
+                    // Si no se proporcionó un ID de parcela válido
+                    session.setAttribute("mensaje", "No se proporcionó un ID de parcela válido.");
+                }
+
+                // Redirigir a la página de edición de parcelas
+                ruta = "/editar_parcelas.jsp"; // o la ruta que corresponda
+
+            } else if ("editar".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
 
@@ -651,48 +676,50 @@ public class Controlador extends HttpServlet {
             out.close();
         }
     }
+
     public class ElegirTrabajo extends HttpServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        String dniAgricultor = (String) session.getAttribute("dni");
 
-        if (dniAgricultor == null) {
-            response.sendRedirect("login.jsp");
-            return;
+        protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+            HttpSession session = request.getSession();
+            String dniAgricultor = (String) session.getAttribute("dni");
+
+            if (dniAgricultor == null) {
+                response.sendRedirect("login.jsp");
+                return;
+            }
+
+            Conexion conexion = new Conexion();
+            int idAgricultor = conexion.obtenerIdAgricultorPorDni(dniAgricultor);
+            List<Trabajo> trabajosDisponibles = conexion.obtenerTrabajosDisponibles(idAgricultor);
+            List<Trabajo> trabajosAsignados = conexion.obtenerTrabajosAsignados(idAgricultor);
+
+            request.setAttribute("trabajosDisponibles", trabajosDisponibles);
+            request.setAttribute("trabajosAsignados", trabajosAsignados);
+            request.getRequestDispatcher("elegirTrabajo.jsp").forward(request, response);
         }
 
-        Conexion conexion = new Conexion();
-        int idAgricultor = conexion.obtenerIdAgricultorPorDni(dniAgricultor);
-        List<Trabajo> trabajosDisponibles = conexion.obtenerTrabajosDisponibles(idAgricultor);
-        List<Trabajo> trabajosAsignados = conexion.obtenerTrabajosAsignados(idAgricultor);
+        protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+            HttpSession session = request.getSession();
+            String dniAgricultor = (String) session.getAttribute("dni");
 
-        request.setAttribute("trabajosDisponibles", trabajosDisponibles);
-        request.setAttribute("trabajosAsignados", trabajosAsignados);
-        request.getRequestDispatcher("elegirTrabajo.jsp").forward(request, response);
+            if (dniAgricultor == null) {
+                response.sendRedirect("login.jsp");
+                return;
+            }
+
+            int idAgricultor = new Conexion().obtenerIdAgricultorPorDni(dniAgricultor);
+            int idTrabajo = Integer.parseInt(request.getParameter("id_trabajo"));
+
+            Conexion conexion = new Conexion();
+            boolean asignado = conexion.asignarTrabajo(idTrabajo, idAgricultor);
+
+            if (asignado) {
+                response.sendRedirect("ElegirTrabajoServlet?mensaje=Trabajo asignado correctamente");
+            } else {
+                response.sendRedirect("ElegirTrabajoServlet?mensaje=Error al asignar el trabajo");
+            }
+        }
     }
-
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        String dniAgricultor = (String) session.getAttribute("dni");
-
-        if (dniAgricultor == null) {
-            response.sendRedirect("login.jsp");
-            return;
-        }
-
-        int idAgricultor = new Conexion().obtenerIdAgricultorPorDni(dniAgricultor);
-        int idTrabajo = Integer.parseInt(request.getParameter("id_trabajo"));
-
-        Conexion conexion = new Conexion();
-        boolean asignado = conexion.asignarTrabajo(idTrabajo, idAgricultor);
-
-        if (asignado) {
-            response.sendRedirect("ElegirTrabajoServlet?mensaje=Trabajo asignado correctamente");
-        } else {
-            response.sendRedirect("ElegirTrabajoServlet?mensaje=Error al asignar el trabajo");
-        }
-    }
-}
 
     private void registro() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

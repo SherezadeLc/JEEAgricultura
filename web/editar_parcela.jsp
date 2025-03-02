@@ -128,13 +128,13 @@
 
                         <!-- Botón Eliminar -->
                         <form action="Controlador" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta parcela?')" style="display:inline-block;">
-                            <input type="hidden" name="id_parcela" value="<%=parcelas.get(i).getIdParcela()%>">
-                            <input type="submit" name="enviar" value="eliminar">
+                            <input type="hidden" name="id_parcelas" value="<%= parcelas.get(i).getIdParcela()%>">
+                            <input type="submit" name="enviar" value="Eliminar">
                         </form>
                     </td>
                 </tr>
                 <% }
-            } else { %>
+                } else { %>
                 <tr>
                     <td colspan="4" style="text-align:center;">No hay parcelas registradas para el DNI introducido.</td>
                 </tr>
