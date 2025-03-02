@@ -607,7 +607,148 @@ public class Controlador extends HttpServlet {
         request.setAttribute("estado", estado);
         request.getRequestDispatcher("editar_maquina.jsp").forward(request, response);
     }
+    private void editarParcela(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        /*Creamos una instancia de la clase conexion*/
+        Conexion conexion = new Conexion();
+        HttpSession session = request.getSession();
 
+        try {
+
+            RequestDispatcher rd = null;
+            String ruta = "";
+            // Aquí recojo el valor del botón de acción (como 'Eliminar Parcela')
+            String botonSeleccionado = request.getParameter("enviar");
+
+            // Eliminar parcela
+            if ("Eliminar_parcela".equals(botonSeleccionado)) {
+                String idParcela = request.getParameter("id_parcela");
+                String dniCliente = (String) session.getAttribute("dni"); // Obtener el DNI del cliente desde la sesión
+
+                // Realizar la verificación en la base de datos
+                conexion.conectarBaseDatos();
+                ResultSet resultadoReferencias = conexion.verificarPuntosParcela(idParcela, dniCliente);
+
+                if (resultadoReferencias.next()) {
+                    // Eliminar puntos de asociación
+                    boolean eliminarPuntoAsociado = conexion.eliminarPuntoAsociado(idParcela, dniCliente);
+                    if (eliminarPuntoAsociado) {
+                        // Eliminar parcela
+                        boolean eliminarParcela = conexion.eliminarParcela(idParcela, dniCliente);
+                        if (eliminarParcela) {
+                            session.setAttribute("mensaje", "La parcela ha sido eliminada correctamente.");
+                        } else {
+                            session.setAttribute("mensaje", "Error al eliminar la parcela.");
+                        }
+                    } else {
+                        session.setAttribute("mensaje", "No se pudo eliminar el punto de asociación.");
+                    }
+                } else {
+                    session.setAttribute("mensaje", "No puedes eliminar esta parcela porque no se encuentran puntos asociados o no pertenecen a tu cuenta.");
+                }
+
+                // Redirigir después de la operación
+                ruta = "/editar_parcelas.jsp"; // o la ruta que corresponda
+            }
+
+            /* Redirijo la petición */
+            rd = getServletContext().getRequestDispatcher(ruta);
+            rd.forward(request, response);
+
+        } finally {
+            out.close();
+        }
+    }
+    /*
+
+public class Conexion {
+
+    private Connection conexion;
+
+    // Método para conectar a la base de datos
+    public void conectarBaseDatos() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver"); // Registrar el driver
+            conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/agricultura", "root", "");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Método para verificar si existen puntos asociados a una parcela
+    public ResultSet verificarPuntosParcela(String idParcela, String dniCliente) {
+        ResultSet resultSet = null;
+        String query = "SELECT * FROM puntos_parcela WHERE id_parcela = ? AND dni_cliente = ?";
+        
+        try {
+            PreparedStatement preparedStatement = conexion.prepareStatement(query);
+            preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
+            preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
+            
+            resultSet = preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return resultSet;
+    }
+
+    // Método para eliminar el punto de asociación de la parcela
+    public boolean eliminarPuntoAsociado(String idParcela, String dniCliente) {
+        String query = "DELETE FROM puntos_parcela WHERE id_parcela = ? AND dni_cliente = ?";
+        boolean exito = false;
+
+        try {
+            PreparedStatement preparedStatement = conexion.prepareStatement(query);
+            preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
+            preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
+            
+            int filasAfectadas = preparedStatement.executeUpdate();
+            if (filasAfectadas > 0) {
+                exito = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return exito;
+    }
+
+    // Método para eliminar la parcela de la base de datos
+    public boolean eliminarParcela(String idParcela, String dniCliente) {
+        String query = "DELETE FROM parcela WHERE id_parcela = ? AND dni_cliente = ?";
+        boolean exito = false;
+
+        try {
+            PreparedStatement preparedStatement = conexion.prepareStatement(query);
+            preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
+            preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
+            
+            int filasAfectadas = preparedStatement.executeUpdate();
+            if (filasAfectadas > 0) {
+                exito = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return exito;
+    }
+
+    // Cerrar la conexión a la base de datos
+    public void cerrarConexion() {
+        try {
+            if (conexion != null) {
+                conexion.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
+*/
     private void registro() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
