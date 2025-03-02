@@ -120,6 +120,30 @@ public class Controlador extends HttpServlet {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/añadir_maquina.jsp";
 
+            } else if ("anadir_maquina".equals(botonSeleccionado)) {
+                // 1. Obtener el tipo de máquina seleccionado en el formulario
+                String tipoMaquina = request.getParameter("tipo_maquina");
+
+                conexion.conectarBaseDatos();
+
+                // 2. Verificar que el usuario haya seleccionado una opción
+                if (tipoMaquina == null || tipoMaquina.isEmpty()) {
+                    response.sendRedirect("agregar_maquina.jsp?error=Debe seleccionar un tipo de máquina");
+                    return; // Detiene la ejecución del método
+                }
+                boolean comprobar = conexion.insertarCliente(tipoMaquina);
+                if (comprobar) {
+                    session.setAttribute("registroMensaje", "La maquina nueva " + tipoMaquina + " fue guardado correctamente");
+                    // Aseguramos que la ruta esté correcta
+                ruta = "/añadir_maquina.jsp";
+                } else {
+                    session.setAttribute("registroMensaje", "No se pudo añadir la nueva maquina");
+                     // Aseguramos que la ruta esté correcta
+                ruta = "/añadir_maquina.jsp";
+                }
+
+               
+
             } else if ("Elegir_trabajo".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
@@ -200,8 +224,6 @@ public class Controlador extends HttpServlet {
             out.close();
         }
     }
-
-   
 
     private void listarParcelas(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
@@ -302,40 +324,7 @@ public class Controlador extends HttpServlet {
         }
     }
 
-    private void agregarMaquina(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // 1. Obtener el tipo de máquina seleccionado en el formulario
-        String tipoMaquina = request.getParameter("tipo_maquina");
-
-        // 2. Verificar que el usuario haya seleccionado una opción
-        if (tipoMaquina == null || tipoMaquina.isEmpty()) {
-            response.sendRedirect("agregar_maquina.jsp?error=Debe seleccionar un tipo de máquina");
-            return; // Detiene la ejecución del método
-        }
-
-        // 3. Conectar a la base de datos
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-
-            // 4. Crear la consulta SQL para insertar la máquina
-            String sqlInsertar = "INSERT INTO maquina (tipo_maquina) VALUES (?)";
-            PreparedStatement stmt = conn.prepareStatement(sqlInsertar);
-            stmt.setString(1, tipoMaquina);
-
-            // 5. Ejecutar la consulta
-            int filasAfectadas = stmt.executeUpdate();
-
-            // 6. Verificar si se insertó correctamente
-            if (filasAfectadas > 0) {
-                response.sendRedirect("agregar_maquina.jsp?mensaje=Máquina añadida correctamente");
-            } else {
-                response.sendRedirect("agregar_maquina.jsp?error=No se pudo agregar la máquina");
-            }
-
-        } catch (Exception e) {
-            // 7. Manejar errores y mostrar mensaje de error
-            e.printStackTrace();
-            response.sendRedirect("agregar_maquina.jsp?error=Error en la base de datos");
-        }
-    }
+    
 
     private void crearTrabajo(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String descripcion = request.getParameter("descripcion");

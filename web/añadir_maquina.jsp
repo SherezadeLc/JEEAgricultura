@@ -73,7 +73,7 @@
 </head>
 <body>
     <div class="contenedor">
-        <form method="POST" action="Controlador?action=agregarMaquina">
+        <form method="POST" action="Controlador">
             <h2>Agregar Máquina</h2>
             <label for="tipo_maquina">Tipo de máquina:</label><br>
             <select name="tipo_maquina" id="tipo_maquina" required> 
@@ -88,7 +88,7 @@
                 <option value="Subsoladores">Subsoladores</option>
             </select>
             <br>
-            <button type="submit">Agregar Máquina</button><br><br>
+            <button type="submit"name="enviar" value="anadir_maquina">Agregar Máquina</button><br><br>
         </form>
 
         <% if (mensaje != null) { %>

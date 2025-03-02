@@ -209,5 +209,31 @@ public class Conexion extends HttpServlet {
         }
 
     }
+    
+    public boolean insertarCliente(String tipoMaquina) {
+        conectarBaseDatos(); // Asegurar conexión
+         try {
+            String sqlInsertar = "INSERT INTO maquina (tipo_maquina) VALUES (?)";
+           
+            PreparedStatement preparedStatement = conexion.prepareStatement(sqlInsertar);
+         
+            preparedStatement.setString(1, tipoMaquina);
+          
+            preparedStatement.executeUpdate();
+           
+            //Cerramos los recursos
+            preparedStatement.close();
+            
+            return true;
+        } catch (SQLException e) {
+
+            return false;
+        }
+
+        
+    }
+    
+    
+    
 
 }
