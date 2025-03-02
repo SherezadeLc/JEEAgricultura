@@ -2,6 +2,7 @@ package es.agriculturaJ2EE;
 
 import es.agriculturaJ2EE.conexion.Conexion;
 import es.agriculturaJ2EE.modelo.Cliente;
+import es.agriculturaJ2EE.modelo.Parcela;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -137,14 +138,12 @@ public class Controlador extends HttpServlet {
                 if (comprobar) {
                     session.setAttribute("registroMensaje", "La maquina nueva " + tipoMaquina + " fue guardado correctamente");
                     // Aseguramos que la ruta esté correcta
-                ruta = "/añadir_maquina.jsp";
+                    ruta = "/añadir_maquina.jsp";
                 } else {
                     session.setAttribute("registroMensaje", "No se pudo añadir la nueva maquina");
-                     // Aseguramos que la ruta esté correcta
-                ruta = "/añadir_maquina.jsp";
+                    // Aseguramos que la ruta esté correcta
+                    ruta = "/añadir_maquina.jsp";
                 }
-
-               
 
             } else if ("Elegir_trabajo".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
@@ -181,20 +180,21 @@ public class Controlador extends HttpServlet {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/añadir_parcelas.jsp";
 
-            }else if ("anadir_parcela".equals(botonSeleccionado)) {
+            } else if ("anadir_parcela".equals(botonSeleccionado)) {
                 // Obtener los parámetros enviados por el formulario
+                String dni = request.getParameter("dni");
                 String idCatastro = request.getParameter("id_catastro");
                 String numeroParcela = request.getParameter("numero_parcela");
                 String latitud = request.getParameter("latitud");
                 String longitud = request.getParameter("longitud");
 
                 // Validar que todos los campos están completos
-                if (idCatastro == null || numeroParcela == null || latitud == null || longitud == null
-                        || idCatastro.isEmpty() || numeroParcela.isEmpty() || latitud.isEmpty() || longitud.isEmpty()) {
+                if (dni == null || idCatastro == null || numeroParcela == null || latitud == null || longitud == null
+                        || dni.isEmpty() || idCatastro.isEmpty() || numeroParcela.isEmpty() || latitud.isEmpty() || longitud.isEmpty()) {
                     response.sendRedirect("añadir_parcela.jsp?error=Todos los campos son obligatorios");
                     return;
                 }
-                boolean comprobar = conexion.agregarParcela(idCatastro, numeroParcela, latitud, longitud);
+                boolean comprobar = conexion.agregarParcela(dni, idCatastro, numeroParcela, latitud, longitud);
                 if (comprobar) {
                     session.setAttribute("registroMensaje", "Se añadio la parcela");
                     ruta = "/añadir_parcelas.jsp";
@@ -203,8 +203,35 @@ public class Controlador extends HttpServlet {
                     ruta = "/añadir_parcelas.jsp";
                 }
 
-                // Aseguramos que la ruta esté correcta
-                ruta = "/añadir_parcelas.jsp";
+            } else if ("editar_parcela".equals(botonSeleccionado)) {
+                ruta = "/editar_parcela.jsp";
+                String dni = request.getParameter("dni");
+                ResultSet recogerParcelas = conexion.listarParcelas(dni);
+                /*Creo el arrayList de productos llamado todosLibros*/
+                ArrayList<Parcela> todasParcelas = new ArrayList();
+
+                try {
+                    /*Uso el metodo .next() para recoger los registros extraidos por resulset */
+                    while (recogerParcelas.next()) {
+                        String pidParcela = recogerParcelas.getString("titulo");
+                        String pidCatastro = recogerParcelas.getString("autor");
+                        String pnumeroParcela = recogerParcelas.getString("editorial");
+                        
+
+                        /*Creo un nuevo Objeto producto con los datos correspondientes a cada libro de la BD */
+                        Parcela datosParcela = new Parcela(pidParcela, pidCatastro, pnumeroParcela);
+
+                        /*Añado al arrayList creado el producto creado con la informacion de los libros extraidos de la Bd*/
+                        todasParcelas.add(datosParcela);
+                        session.setAttribute("parcela", todasParcelas);
+
+                        ruta = "/editar_parcela.jsp";
+                    }
+                } catch (SQLException e) {
+                    System.out.println(e.getMessage());
+                }
+
+                
 
             } else if ("Crear_trabajo".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
@@ -267,75 +294,6 @@ public class Controlador extends HttpServlet {
         }
     }
 
-    // Método para agregar una nueva parcela
-    private void agregarParcela(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // Obtener los parámetros enviados por el formulario
-        String idCatastro = request.getParameter("id_catastro");
-        String numeroParcela = request.getParameter("numero_parcela");
-        String latitud = request.getParameter("latitud");
-        String longitud = request.getParameter("longitud");
-
-        // Validar que todos los campos están completos
-        if (idCatastro == null || numeroParcela == null || latitud == null || longitud == null
-                || idCatastro.isEmpty() || numeroParcela.isEmpty() || latitud.isEmpty() || longitud.isEmpty()) {
-            response.sendRedirect("añadir_parcela.jsp?error=Todos los campos son obligatorios");
-            return;
-        }
-
-        // Conexión a la base de datos y manejo de inserciones
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            // Insertar en la tabla parcela
-            String sqlParcela = "INSERT INTO parcela (id_catastro, numero_parcela) VALUES (?, ?)";
-            PreparedStatement stmtParcela = conn.prepareStatement(sqlParcela);
-            stmtParcela.setString(1, idCatastro);
-            stmtParcela.setString(2, numeroParcela);
-            int filasParcela = stmtParcela.executeUpdate(); // Ejecutar la inserción
-
-            // Insertar en la tabla puntos (coordenadas)
-            String sqlPuntos = "INSERT INTO puntos (numero_parcela, latitud, longitud) VALUES (?, ?, ?)";
-            PreparedStatement stmtPuntos = conn.prepareStatement(sqlPuntos);
-            stmtPuntos.setString(1, numeroParcela);
-            stmtPuntos.setString(2, latitud);
-            stmtPuntos.setString(3, longitud);
-            int filasPuntos = stmtPuntos.executeUpdate(); // Ejecutar la inserción
-
-            // Obtener ID de la parcela recién insertada
-            String sqlObtenerParcela = "SELECT id_parcela FROM parcela WHERE numero_parcela=?";
-            PreparedStatement stmtGetParcela = conn.prepareStatement(sqlObtenerParcela);
-            stmtGetParcela.setString(1, numeroParcela);
-            ResultSet rsParcela = stmtGetParcela.executeQuery();
-            int idParcela = rsParcela.next() ? rsParcela.getInt("id_parcela") : -1;
-
-            // Obtener ID del punto recién insertado
-            String sqlObtenerPunto = "SELECT id_punto FROM puntos WHERE numero_parcela=?";
-            PreparedStatement stmtGetPunto = conn.prepareStatement(sqlObtenerPunto);
-            stmtGetPunto.setString(1, numeroParcela);
-            ResultSet rsPunto = stmtGetPunto.executeQuery();
-            int idPunto = rsPunto.next() ? rsPunto.getInt("id_punto") : -1;
-
-            // Obtener el DNI del cliente desde la sesión
-            HttpSession session = request.getSession();
-            String dniCliente = (String) session.getAttribute("dni");
-
-            // Insertar la relación entre puntos y parcela en la tabla puntos_parcela
-            if (idParcela > 0 && idPunto > 0) {
-                String sqlRelacion = "INSERT INTO puntos_parcela (id_punto, id_parcela, dni_cliente) VALUES (?, ?, ?)";
-                PreparedStatement stmtRelacion = conn.prepareStatement(sqlRelacion);
-                stmtRelacion.setInt(1, idPunto);
-                stmtRelacion.setInt(2, idParcela);
-                stmtRelacion.setString(3, dniCliente);
-                stmtRelacion.executeUpdate(); // Ejecutar la inserción
-            }
-
-            // Redirigir al usuario con un mensaje de éxito
-            response.sendRedirect("añadir_parcela.jsp?mensaje=Parcela añadida correctamente");
-        } catch (Exception e) {
-            // Si hay un error, mostrar mensaje de error
-            e.printStackTrace();
-            response.sendRedirect("añadir_parcela.jsp?error=Error en la base de datos");
-        }
-    }
-
     private void listarMaquinas(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM maquinas");
@@ -350,8 +308,6 @@ public class Controlador extends HttpServlet {
             e.printStackTrace();
         }
     }
-
-    
 
     private void crearTrabajo(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String descripcion = request.getParameter("descripcion");
@@ -634,6 +590,7 @@ public class Controlador extends HttpServlet {
         request.setAttribute("estado", estado);
         request.getRequestDispatcher("editar_maquina.jsp").forward(request, response);
     }
+
     private void editarParcela(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         response.setContentType("text/html;charset=UTF-8");
@@ -690,6 +647,7 @@ public class Controlador extends HttpServlet {
             out.close();
         }
     }
+
     /*
 
 public class Conexion {
@@ -777,7 +735,7 @@ public class Conexion {
         }
     }
 }
-*/
+     */
     private void registro() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

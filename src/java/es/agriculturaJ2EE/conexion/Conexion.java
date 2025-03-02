@@ -73,43 +73,64 @@ public class Conexion extends HttpServlet {
     }
 
     public boolean insertarCliente(String nombre, String dni, String contrasena, String idCatastro, String numero_parcela, String latitud, String longitud) {
-        /*Usamos el metodo encargado de iniciar la conexion con la BD*/
+        // Usamos el método encargado de iniciar la conexión con la BD
         conectarBaseDatos();
-        try {
-            String sqlStr = "INSERT INTO cliente (dni,nombre, contrasena,id_catastro) VALUES (?, ?,?,?)";
-            String sqlStr1 = "INSERT INTO parcela (id_catastro, numero_parcela) VALUES  (?, ?)";
-            String sqlStr2 = "INSERT INTO puntos (numero_parcela, latitud, longitud) VALUES (?, ?,?)";
-            PreparedStatement preparedStatement = conexion.prepareStatement(sqlStr);
-            PreparedStatement preparedStatement1 = conexion.prepareStatement(sqlStr1);
-            PreparedStatement preparedStatement2 = conexion.prepareStatement(sqlStr2);
 
-            preparedStatement.setString(1, dni);
-            preparedStatement.setString(2, nombre);
-            preparedStatement.setString(3, contrasena);
-            preparedStatement.setString(4, idCatastro);
+        try (
+                // Declaramos los PreparedStatement necesarios
+                PreparedStatement preparedStatementCliente = conexion.prepareStatement("INSERT INTO cliente (dni, nombre, contrasena, id_catastro) VALUES (?, ?, ?, ?)");
+                PreparedStatement preparedStatementParcela = conexion.prepareStatement("INSERT INTO parcela (id_catastro, numero_parcela) VALUES (?, ?)");
+                PreparedStatement preparedStatementPuntos = conexion.prepareStatement("INSERT INTO puntos (numero_parcela, latitud, longitud) VALUES (?, ?, ?)");
+                PreparedStatement preparedStatementPuntosParcela = conexion.prepareStatement("INSERT INTO puntos_parcela (id_punto, id_parcela, dni_cliente) VALUES (?, ?, ?)");
+                PreparedStatement stmtPunto = conexion.prepareStatement("SELECT id_punto FROM puntos WHERE numero_parcela = ?");
+                PreparedStatement stmtParcela = conexion.prepareStatement("SELECT id_parcela FROM parcela WHERE numero_parcela = ?")) {
+            // Insertar datos en la tabla cliente
+            preparedStatementCliente.setString(1, dni);
+            preparedStatementCliente.setString(2, nombre);
+            preparedStatementCliente.setString(3, contrasena);
+            preparedStatementCliente.setString(4, idCatastro);
 
-            preparedStatement1.setString(1, idCatastro);
-            preparedStatement1.setString(2, numero_parcela);
+            // Insertar datos en la tabla parcela
+            preparedStatementParcela.setString(1, idCatastro);
+            preparedStatementParcela.setString(2, numero_parcela);
 
-            preparedStatement2.setString(1, numero_parcela);
-            preparedStatement2.setString(2, latitud);
-            preparedStatement2.setString(3, longitud);
+            // Insertar datos en la tabla puntos
+            preparedStatementPuntos.setString(1, numero_parcela);
+            preparedStatementPuntos.setString(2, latitud);
+            preparedStatementPuntos.setString(3, longitud);
 
-            preparedStatement.executeUpdate();
-            preparedStatement1.executeUpdate();
-            preparedStatement2.executeUpdate();
-            //Cerramos los recursos
-            preparedStatement.close();
-            //Cerramos los recursos
-            preparedStatement1.close();
-            //Cerramos los recursos
-            preparedStatement2.close();
+            // Ejecutar inserciones en las tablas cliente, parcela y puntos
+            preparedStatementCliente.executeUpdate();
+            preparedStatementParcela.executeUpdate();
+            preparedStatementPuntos.executeUpdate();
+
+            // Verificar si el punto existe en la tabla puntos
+            stmtPunto.setString(1, numero_parcela);
+            ResultSet rsetPunto = stmtPunto.executeQuery();
+
+            // Verificar si la parcela existe en la tabla parcela
+            stmtParcela.setString(1, numero_parcela);
+            ResultSet rsetParcela = stmtParcela.executeQuery();
+
+            if (rsetPunto.next() && rsetParcela.next()) {
+                // Si el punto y la parcela existen, obtenemos los ids correspondientes
+                String idPunto = rsetPunto.getString("id_punto");
+                String idParcela = rsetParcela.getString("id_parcela");
+
+                // Insertar en la tabla puntos_parcela
+                preparedStatementPuntosParcela.setString(1, idPunto);
+                preparedStatementPuntosParcela.setString(2, idParcela);
+                preparedStatementPuntosParcela.setString(3, dni);
+                preparedStatementPuntosParcela.executeUpdate();
+            }
+
+            // Cerrar recursos
             return true;
-        } catch (SQLException e) {
 
+        } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
-
     }
 
     public ResultSet loginCliente(String dni, String contrasena) {
@@ -194,114 +215,135 @@ public class Conexion extends HttpServlet {
         return false; // Devuelve false si hubo un error o el usuario no existe
     }
 
-    public ResultSet listarParcelas() {
+    public ResultSet listarParcelas(String dni) {
         conectarBaseDatos();
 
-        /*Creamos un objeto statement*/
-        Statement stmt;
         try {
-            stmt = conexion.createStatement();
-            String sqlStr = "SELECT * FROM parcelas";
-            ResultSet rset = stmt.executeQuery(sqlStr);
-            return rset;
+            // Consulta SQL corregida con PreparedStatement para evitar SQL Injection
+            String sqlStr = "SELECT * FROM parcela WHERE id_parcela IN (SELECT id_parcela FROM puntos_parcela WHERE dni_cliente = ?)";
+
+            PreparedStatement stmt = conexion.prepareStatement(sqlStr);
+            stmt.setString(1, dni);
+
+            // Ejecutar la consulta y devolver el resultado
+            return stmt.executeQuery();
+
         } catch (SQLException ex) {
+            // Imprimir error en consola para depuración
+            ex.printStackTrace();
             return null;
         }
-
     }
-    
+
     public boolean insertarMaquina(String tipoMaquina) {
         conectarBaseDatos(); // Asegurar conexión
-         try {
+        try {
             String sqlInsertar = "INSERT INTO maquina (tipo_maquina) VALUES (?)";
-           
+
             PreparedStatement preparedStatement = conexion.prepareStatement(sqlInsertar);
-         
+
             preparedStatement.setString(1, tipoMaquina);
-          
+
             preparedStatement.executeUpdate();
-           
+
             //Cerramos los recursos
             preparedStatement.close();
-            
+
             return true;
         } catch (SQLException e) {
 
             return false;
         }
 
-        
-    }
-    public boolean agregarParcela(String idCatastro, String numeroParcela, String latitud, String longitud) {
-    conectarBaseDatos(); // Asegurar conexión
-
-    if (conexion == null) {
-        System.out.println("Error: conexión no establecida.");
-        return false;
     }
 
-    try {
-        // Desactivar autocommit para manejar transacciones
-        conexion.setAutoCommit(false);
+    public boolean agregarParcela(String dni, String idCatastro, String numero_parcela, String latitud, String longitud) {
+        // Usamos el método encargado de iniciar la conexión con la BD
+        conectarBaseDatos();
 
-        // Insertar en `parcela`
-        String sqlParcela = "INSERT INTO parcela (id_catastro, numero_parcela) VALUES (?, ?)";
-        PreparedStatement stmtParcela = conexion.prepareStatement(sqlParcela);
-        stmtParcela.setString(1, idCatastro);
-        stmtParcela.setString(2, numeroParcela);
-        stmtParcela.executeUpdate();
+        try (
+                // Declaramos los PreparedStatement necesarios
+                PreparedStatement preparedStatementParcela = conexion.prepareStatement("INSERT INTO parcela (id_catastro, numero_parcela) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement preparedStatementPuntos = conexion.prepareStatement("INSERT INTO puntos (numero_parcela, latitud, longitud) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement preparedStatementPuntosParcela = conexion.prepareStatement("INSERT INTO puntos_parcela (id_punto, id_parcela, dni_cliente) VALUES (?, ?, ?)");
+                PreparedStatement stmtPunto = conexion.prepareStatement("SELECT id_punto FROM puntos WHERE numero_parcela = ?");
+                PreparedStatement stmtParcela = conexion.prepareStatement("SELECT id_parcela FROM parcela WHERE numero_parcela = ?")) {
+            // Insertar datos en la tabla parcela
+            preparedStatementParcela.setString(1, idCatastro);
+            preparedStatementParcela.setString(2, numero_parcela);
+            int rowsInsertedParcela = preparedStatementParcela.executeUpdate();
+            if (rowsInsertedParcela == 0) {
+                System.out.println("Error al insertar en la tabla parcela");
+                return false;
+            }
 
-        // Insertar en `puntos`
-        String sqlPuntos = "INSERT INTO puntos (numero_parcela, latitud, longitud) VALUES (?, ?, ?)";
-        PreparedStatement stmtPuntos = conexion.prepareStatement(sqlPuntos);
-        stmtPuntos.setString(1, numeroParcela);
-        stmtPuntos.setString(2, latitud);
-        stmtPuntos.setString(3, longitud);
-        stmtPuntos.executeUpdate();
+            // Insertar datos en la tabla puntos
+            preparedStatementPuntos.setString(1, numero_parcela);
+            preparedStatementPuntos.setString(2, latitud);
+            preparedStatementPuntos.setString(3, longitud);
+            int rowsInsertedPuntos = preparedStatementPuntos.executeUpdate();
+            if (rowsInsertedPuntos == 0) {
+                System.out.println("Error al insertar en la tabla puntos");
+                return false;
+            }
 
-        // Confirmar la transacción
-        conexion.commit();
+            // Obtener los IDs generados
+            ResultSet rsParcela = preparedStatementParcela.getGeneratedKeys();
+            String idParcela = null;
+            if (rsParcela.next()) {
+                idParcela = rsParcela.getString(1);
+                System.out.println("idParcela generado: " + idParcela);
+            } else {
+                System.out.println("No se generó idParcela");
+                return false;
+            }
 
-        // Cerrar recursos
-        stmtParcela.close();
-        stmtPuntos.close();
+            ResultSet rsPunto = preparedStatementPuntos.getGeneratedKeys();
+            String idPunto = null;
+            if (rsPunto.next()) {
+                idPunto = rsPunto.getString(1);
+                System.out.println("idPunto generado: " + idPunto);
+            } else {
+                System.out.println("No se generó idPunto");
+                return false;
+            }
 
-        return true;
-    } catch (SQLException e) {
-        try {
-            // Si hay error, deshacer la transacción
-            conexion.rollback();
-        } catch (SQLException rollbackEx) {
-            rollbackEx.printStackTrace();
+            // Insertar en la tabla puntos_parcela
+            preparedStatementPuntosParcela.setString(1, idPunto);
+            preparedStatementPuntosParcela.setString(2, idParcela);
+            preparedStatementPuntosParcela.setString(3, dni);
+            int rowsInsertedPuntosParcela = preparedStatementPuntosParcela.executeUpdate();
+            if (rowsInsertedPuntosParcela == 0) {
+                System.out.println("Error al insertar en la tabla puntos_parcela");
+                return false;
+            }
+
+            System.out.println("Insertado correctamente en puntos_parcela");
+
+            // Confirmar que todo se insertó correctamente
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-
-        e.printStackTrace();
-        return false;
-    } finally {
-        try {
-            // Reactivar autocommit
-            conexion.setAutoCommit(true);
-        } catch (SQLException autoCommitEx) {
-            autoCommitEx.printStackTrace();
-        }
     }
-}
-    
-     // Método para verificar si existen puntos asociados a una parcela
+
+// Método para verificar si existen puntos asociados a una parcela
     public ResultSet verificarPuntosParcela(String idParcela, String dniCliente) {
         ResultSet resultSet = null;
         String query = "SELECT * FROM puntos_parcela WHERE id_parcela = ? AND dni_cliente = ?";
-        
+
         try {
             PreparedStatement preparedStatement = conexion.prepareStatement(query);
             preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
             preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
-            
+
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return resultSet;
     }
 
@@ -314,7 +356,7 @@ public class Conexion extends HttpServlet {
             PreparedStatement preparedStatement = conexion.prepareStatement(query);
             preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
             preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
-            
+
             int filasAfectadas = preparedStatement.executeUpdate();
             if (filasAfectadas > 0) {
                 exito = true;
@@ -335,7 +377,7 @@ public class Conexion extends HttpServlet {
             PreparedStatement preparedStatement = conexion.prepareStatement(query);
             preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
             preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
-            
+
             int filasAfectadas = preparedStatement.executeUpdate();
             if (filasAfectadas > 0) {
                 exito = true;
@@ -357,11 +399,5 @@ public class Conexion extends HttpServlet {
             e.printStackTrace();
         }
     }
-
-    
-    
-    
-    
-    
 
 }

@@ -71,17 +71,16 @@
     <body>
         <div class="contenedor">
             <form method="POST" action="Controlador">
-                <label for="id_catastro">Número Catastro:</label><br>
-                <input type="text" name="id_catastro" id="id_catastro" value=""><br><br>
-
-                <label for="numero_parcela">Número Parcela:</label><br>
-                <input type="text" name="numero_parcela" id="numero_parcela"value="" ><br><br>
-
-                <label for="latitud">Latitud:</label><br>
-                <input type="text" name="latitud" id="latitud"value="" ><br><br>
-
-                <label for="longitud">Longitud:</label><br>
-                <input type="text" name="longitud" id="longitud"value="" ><br><br>
+               <label>DNI:</label>
+                <input type="text" name="dni" >
+                <label>Id Catastro:</label>
+                <input type="text" name="id_catastro" >
+                <label>Número Parcela:</label>
+                <input type="text" name="numero_parcela" >
+                <label>Latitud:</label>
+                <input type="text" name="latitud" >
+                <label>Longitud:</label>
+                <input type="text" name="longitud" >
 
                 <button type="submit" name="enviar" value="anadir_parcela">Agregar Parcela</button><br><br>
             </form>
@@ -100,8 +99,8 @@
             <p class="mensaje"><%= error%></p>
             <% }%>
 
-            <form action="editar_parcela.jsp" method="POST">
-                <input type="submit" value="Volver">
+            <form action="Controlador" method="POST">
+               <button type="submit" name="enviar" value="editar_parcela">Editar parcelas</button><br><br>
             </form>
         </div>
     </body>

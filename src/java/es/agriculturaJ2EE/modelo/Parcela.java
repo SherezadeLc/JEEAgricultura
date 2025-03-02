@@ -10,6 +10,16 @@ public class Parcela {
     private String idCatastro;
     private String numeroParcela;
 
+    public Parcela(String idParcela, String idCatastro, String numeroParcela) {
+        this.idParcela = idParcela;
+        this.idCatastro = idCatastro;
+        this.numeroParcela = numeroParcela;
+    }
+
+    public Parcela() {
+        
+    }
+
     // Getters y setters
     public String getIdParcela() {
         return idParcela;
