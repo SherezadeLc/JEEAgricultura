@@ -159,5 +159,23 @@ public class Conexion extends HttpServlet {
         }
 
     }
+    
+     private void cambiarContraseña(String usuario,String nuevaContraseña){
+         
+     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 }

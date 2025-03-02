@@ -112,6 +112,8 @@ public class Controlador extends HttpServlet {
                 ruta = "/registro.jsp";
 
             } else if ("Salir".equals(botonSeleccionado)) {
+                 session.invalidate();
+               
                 // Aseguramos que la ruta esté correcta
                 ruta = "/login.jsp";
 

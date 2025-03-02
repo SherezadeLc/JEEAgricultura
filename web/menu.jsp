@@ -25,27 +25,27 @@
         
         <% if ("admin".equals(tipo)) { %>
             <form action="ControladorServlet?accion=editarAgricultores" method="POST">
-                <input type="submit" value="Añadir Agricultores">
+                <input type="submit" value="Añadir_Agricultores">
             </form>
             <form action="ControladorServlet?accion=editarClientes" method="POST">
-                <input type="submit" value="Listar Clientes">
+                <input type="submit" value="Listar_Clientes">
             </form>
             <form action="ControladorServlet?accion=editarMaquinas" method="POST">
-                <input type="submit" value="Añadir Máquinas">
+                <input type="submit" value="Anadir_Máquinas">
             </form>
         <% } else if ("agricultor".equals(tipo)) { %>
             <form action="ControladorServlet?accion=elegirTrabajo" method="POST">
-                <input type="submit" value="Elegir trabajo">
+                <input type="submit" value="Elegir_trabajo">
             </form>
             <form action="ControladorServlet?accion=cambiarContraseña" method="POST">
-                <input type="submit" value="Cambiar contraseña">
+                <input type="submit" value="Cambiar_contraseña">
             </form>
         <% } else if ("cliente".equals(tipo)) { %>
             <form action="ControladorServlet?accion=editarParcela" method="POST">
-                <input type="submit" value="Añadir parcelas">
+                <input type="submit" value="Anadir_parcelas">
             </form>
             <form action="ControladorServlet?accion=crearTrabajo" method="POST">
-                <input type="submit" value="Crear trabajo">
+                <input type="submit" value="Crear_trabajo">
             </form>
         <% } %>
         <form action="ControladorServlet?accion=logout" method="POST">
