@@ -319,6 +319,10 @@ public class Controlador extends HttpServlet {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
 
+            } else if ("Volver".equals(botonSeleccionado)) {
+                // Aseguramos que la ruta esté correcta
+                ruta = "/menu.jsp";
+
             } else if ("Cerrar_sesion".equals(botonSeleccionado)) {
                 session.invalidate();
 

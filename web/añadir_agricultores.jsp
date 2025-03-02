@@ -149,6 +149,11 @@
                 <% }
                 } %>
             </table>
+            <form action="Controlador" method="POST">
+                
+
+                <input type="submit" name="enviar" value="Volver">
+            </form>
         </div>
     </body>
 </html>
