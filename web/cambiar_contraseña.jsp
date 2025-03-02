@@ -63,7 +63,7 @@
                 <input type="password" id="actual" name="actual" required>
 
                 <label for="nueva">Nueva Contraseña:</label>
-                <input type="password" id="nueva" name="nueva" required>
+                <input type="password" id="nueva" name="nueva" value="" required>
 
                 <label for="confirmar">Confirmar Nueva Contraseña:</label>
                 <input type="password" id="confirmar" name="confirmar" required>

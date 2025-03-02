@@ -159,36 +159,44 @@ public class Conexion extends HttpServlet {
         }
 
     }
-    
-     public boolean cambiarContraseña(String dni,String nuevaContraseña){
-         conectarBaseDatos();
-         Statement stmt;
-        try {
-            stmt = conexion.createStatement();
-            String sqlStr = "SELECT nombre FROM agricultor WHERE dni= '" + dni + "'";
-            ResultSet rset = stmt.executeQuery(sqlStr);
-            if(rset.next()){
-                String updateStmt = "UPDATE agricultor SET contrasena = '" + nuevaContraseña + "' WHERE dni= '" + dni + "'";
-                int rsetUpdate=stmt.executeUpdate(updateStmt);
-            }
-           
-        } catch (SQLException ex) {
-             ex.printStackTrace();
+
+    public boolean cambiarContraseña(String dni, String nuevaContraseña) {
+        conectarBaseDatos(); // Asegúrate de que este método inicializa `conexion` correctamente
+
+        if (conexion == null) {
+            System.out.println("Error: conexión no establecida.");
+            return false;
         }
-        return false;
-         
-         
-         
-         
-         
-         
-     }
-    
-     
-    
-    
-     public ResultSet listarParcelas() {
-         conectarBaseDatos();
+
+        // Consultas SQL
+        String sqlSelect = "SELECT nombre FROM agricultor WHERE dni = "+dni+"";
+        String sqlUpdate = "UPDATE agricultor SET contrasena = ? WHERE dni = ?";
+
+        try (
+                PreparedStatement selectStmt = conexion.prepareStatement(sqlSelect);
+                PreparedStatement updateStmt = conexion.prepareStatement(sqlUpdate)) {
+            // Verifica si el usuario existe
+            selectStmt.setString(1, dni);
+            ResultSet rset = selectStmt.executeQuery();
+
+            if (rset.next()) { // Si el usuario existe, actualiza la contraseña
+                updateStmt.setString(1, nuevaContraseña);
+                updateStmt.setString(2, dni);
+                int filasActualizadas = updateStmt.executeUpdate();
+
+                return filasActualizadas > 0; // Devuelve true si se actualizó al menos una fila
+            } else {
+                System.out.println("El usuario con DNI " + dni + " no existe.");
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return false; // Devuelve false si hubo un error o el usuario no existe
+    }
+
+    public ResultSet listarParcelas() {
+        conectarBaseDatos();
 
         /*Creamos un objeto statement*/
         Statement stmt;
@@ -200,17 +208,7 @@ public class Conexion extends HttpServlet {
         } catch (SQLException ex) {
             return null;
         }
-         
-     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+    }
 
 }

@@ -130,19 +130,21 @@ public class Controlador extends HttpServlet {
 
             }else if ("Cambiar_contrasena".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
-                ruta = "/registro.jsp";
+                ruta = "/cambiar_contraseña.jsp";
 
             }else if ("actualizarContrasena".equals(botonSeleccionado)) {
                  String dni = request.getParameter("dni");
-                String contrasena = request.getParameter("password");
+                String contrasena = request.getParameter("nueva");
                 
+                System.out.println(dni);
+                System.out.println(contrasena);
                 boolean cambiar=conexion.cambiarContraseña(dni,contrasena);
                
                 if (cambiar) {
-                    session.setAttribute("registroMensaje", "El usuario  con dni" + dni + " cambio correctamente la contraseña");
+                    session.setAttribute("cambioContrasenaMensaje", "El usuario  con dni" + dni + " cambio correctamente la contraseña");
                     ruta = "/cambiar_contraseña.jsp";
                 } else {
-                    session.setAttribute("registroMensaje", "No se pudo cambiar la contraseña correctamente");
+                    session.setAttribute("cambioContrasenaMensaje", "No se pudo cambiar la contraseña correctamente");
                     ruta = "/cambiar_contraseña.jsp";
                 }
                 
