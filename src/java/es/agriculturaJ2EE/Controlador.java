@@ -770,6 +770,37 @@ public class Controlador extends HttpServlet {
             }
         }
     }
+    private void modificarParcela(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        /*Creamos una instancia de la clase conexion*/
+        Conexion conexion = new Conexion();
+        HttpSession session = request.getSession();
+
+        try {
+
+            RequestDispatcher rd = null;
+            String ruta = "";
+            String botonSeleccionado = request.getParameter("enviar");
+
+            // Lógica de login y otras acciones...
+
+            // Nueva acción para modificar parcelas
+            if ("ModificarParcelas".equals(botonSeleccionado)) {
+                // Llamar al servlet ModificarParcelasServlet
+                request.getRequestDispatcher("/ModificarParcelasServlet").forward(request, response);
+            } 
+            // Otras acciones, como "Anadir_Agricultores", "Anadir_Maquinas", etc.
+            
+            /*Redirigo la peticion */
+            rd = getServletContext().getRequestDispatcher(ruta);
+            rd.forward(request, response);
+
+        } finally {
+            out.close();
+        }
+    }
 
     private void registro() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
