@@ -146,7 +146,7 @@
                     <input type="submit" value="Añadir Parcela">
                 </form>
                 <form action="Controlador" method="POST">
-                    <input type="submit" value="Volver">
+                    <input type="submit" name="enviar" value="Volver" >
                 </form>
             </div>
         </div>

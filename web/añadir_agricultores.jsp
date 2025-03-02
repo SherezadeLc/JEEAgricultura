@@ -98,7 +98,7 @@
                 <input type="text" id="nombre" name="nombre" value="" ><br><br>
 
                 <label for="dni">DNI:</label>
-                <input type="text" id="dni" name="dni"value=""  ><br><br>
+                <input type="text" id="dni" name="dni" value=""  ><br><br>
 
                 <label for="contrasena">Contraseña:</label>
                 <input type="password" id="contrasena" value=""  name="contrasena" ><br><br>

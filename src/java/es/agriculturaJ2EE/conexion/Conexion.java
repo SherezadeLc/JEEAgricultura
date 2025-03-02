@@ -437,5 +437,57 @@ public class Conexion extends HttpServlet {
             return null;
         }
     }
+  public boolean agregarAgricultor(String nombre, String dni, String contrasena) {
+        // Consulta para verificar si el DNI ya existe
+        String verificarDniQuery = "SELECT * FROM agricultores WHERE dni = ?";
+        
+        // Consulta SQL para insertar el agricultor
+        String query = "INSERT INTO agricultores (nombre, dni, contrasena) VALUES (?, ?, ?)";
 
+        // Variable que indica si la operación fue exitosa
+        boolean exito = false;
+
+        try  {
+
+            // Verificar si el DNI ya existe en la base de datos
+            try {PreparedStatement verificarDniStmt = conexion.prepareStatement(verificarDniQuery);
+                verificarDniStmt.setString(1, dni);
+                ResultSet rs = verificarDniStmt.executeQuery();
+
+                if (rs.next()) {
+                    // Si el DNI ya existe, retornar falso
+                    System.out.println("El DNI ya está registrado.");
+                    return false;
+                }
+            }catch (SQLException e) {
+            e.printStackTrace(); // Manejar el error de base de datos o de encriptación
+        }
+                  
+
+          
+
+            // Preparar la inserción del nuevo agricultor
+            try (PreparedStatement preparedStatement = conexion.prepareStatement(query)) {
+                preparedStatement.setString(1, nombre);
+                preparedStatement.setString(2, dni);
+               
+
+                // Ejecutar la consulta
+                int filasAfectadas = preparedStatement.executeUpdate();
+
+                // Si se ha insertado al menos una fila, la operación fue exitosa
+                if (filasAfectadas > 0) {
+                    exito = true;
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace(); // Manejar el error de base de datos o de encriptación
+        }
+
+        return exito;  // Retorna true si la inserción fue exitosa, false si no lo fue
+    }
+  
+  
+  
 }

@@ -156,7 +156,7 @@ public class Controlador extends HttpServlet {
                 ruta = "/añadir_agricultores.jsp";
             }else if ("Listar_Clientes".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
-                ruta = "/registro.jsp";
+                ruta = "/editar_clientes.jsp";
 
             } else if ("Anadir_Maquinas".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
@@ -186,7 +186,7 @@ public class Controlador extends HttpServlet {
 
             } else if ("Elegir_trabajo".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
-                ruta = "/registro.jsp";
+                ruta = "/elegir_trabajo.jsp";
 
             } else if ("Cambiar_contrasena".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
@@ -281,7 +281,7 @@ public class Controlador extends HttpServlet {
                 ruta = "/editar_parcela.jsp"; // Ruta para la página JSP
             } else if ("Crear_trabajo".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
-                ruta = "/registro.jsp";
+                ruta = "/crear_trabajo.jsp";
 
             } else if ("Eliminar".equals(botonSeleccionado)) {
                 // Obtener el ID de la parcela a eliminar
@@ -317,7 +317,7 @@ public class Controlador extends HttpServlet {
 
             } else if ("editar".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
-                ruta = "/registro.jsp";
+                ruta = "/modificar_parcela.jsp";
 
             } else if ("Volver".equals(botonSeleccionado)) {
                 // Aseguramos que la ruta esté correcta
@@ -642,7 +642,7 @@ private void editarCliente(HttpServletRequest request, HttpServletResponse respo
             // 3. Redirigimos a donde corresponda tras actualizar.
             //    Ajusta esta ruta a tu necesidad (p.e. volver al listado).
             //    Si tienes un servlet "ListarClientesServlet", redirígelo allí.
-            response.sendRedirect("ListarClientesServlet");
+            response.sendRedirect("Controlador?action=editar_clientes");
             return;
         }
         
