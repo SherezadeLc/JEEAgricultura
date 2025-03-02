@@ -68,7 +68,7 @@
                 <label for="confirmar">Confirmar Nueva Contraseña:</label>
                 <input type="password" id="confirmar" name="confirmar" required>
 
-                <button type="submit">Actualizar Contraseña</button>
+                <button type="submit"name="enviar" value="actualizarContrasena">Actualizar Contraseña</button>
             </form>
         </div>
     </body>

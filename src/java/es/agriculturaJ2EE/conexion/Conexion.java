@@ -160,13 +160,48 @@ public class Conexion extends HttpServlet {
 
     }
     
-     private void cambiarContraseña(String usuario,String nuevaContraseña){
+     public boolean cambiarContraseña(String dni,String nuevaContraseña){
+         conectarBaseDatos();
+         Statement stmt;
+        try {
+            stmt = conexion.createStatement();
+            String sqlStr = "SELECT nombre FROM agricultor WHERE dni= '" + dni + "'";
+            ResultSet rset = stmt.executeQuery(sqlStr);
+            if(rset.next()){
+                String updateStmt = "UPDATE agricultor SET contrasena = '" + nuevaContraseña + "' WHERE dni= '" + dni + "'";
+                int rsetUpdate=stmt.executeUpdate(updateStmt);
+            }
+           
+        } catch (SQLException ex) {
+             ex.printStackTrace();
+        }
+        return false;
+         
+         
+         
+         
+         
          
      }
     
+     
     
     
-    
+     public ResultSet listarParcelas() {
+         conectarBaseDatos();
+
+        /*Creamos un objeto statement*/
+        Statement stmt;
+        try {
+            stmt = conexion.createStatement();
+            String sqlStr = "SELECT * FROM parcelas";
+            ResultSet rset = stmt.executeQuery(sqlStr);
+            return rset;
+        } catch (SQLException ex) {
+            return null;
+        }
+         
+     }
     
     
     
