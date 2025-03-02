@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -131,7 +133,7 @@ public class Controlador extends HttpServlet {
                     response.sendRedirect("agregar_maquina.jsp?error=Debe seleccionar un tipo de máquina");
                     return; // Detiene la ejecución del método
                 }
-                boolean comprobar = conexion.insertarCliente(tipoMaquina);
+                boolean comprobar = conexion.insertarMaquina(tipoMaquina);
                 if (comprobar) {
                     session.setAttribute("registroMensaje", "La maquina nueva " + tipoMaquina + " fue guardado correctamente");
                     // Aseguramos que la ruta esté correcta
@@ -176,6 +178,31 @@ public class Controlador extends HttpServlet {
                 }
 
             } else if ("Anadir_parcelas".equals(botonSeleccionado)) {
+                // Aseguramos que la ruta esté correcta
+                ruta = "/añadir_parcelas.jsp";
+
+            }else if ("anadir_parcela".equals(botonSeleccionado)) {
+                // Obtener los parámetros enviados por el formulario
+                String idCatastro = request.getParameter("id_catastro");
+                String numeroParcela = request.getParameter("numero_parcela");
+                String latitud = request.getParameter("latitud");
+                String longitud = request.getParameter("longitud");
+
+                // Validar que todos los campos están completos
+                if (idCatastro == null || numeroParcela == null || latitud == null || longitud == null
+                        || idCatastro.isEmpty() || numeroParcela.isEmpty() || latitud.isEmpty() || longitud.isEmpty()) {
+                    response.sendRedirect("añadir_parcela.jsp?error=Todos los campos son obligatorios");
+                    return;
+                }
+                boolean comprobar = conexion.agregarParcela(idCatastro, numeroParcela, latitud, longitud);
+                if (comprobar) {
+                    session.setAttribute("registroMensaje", "Se añadio la parcela");
+                    ruta = "/añadir_parcelas.jsp";
+                } else {
+                    session.setAttribute("registroMensaje", "No se pudo añadir la parcela");
+                    ruta = "/añadir_parcelas.jsp";
+                }
+
                 // Aseguramos que la ruta esté correcta
                 ruta = "/añadir_parcelas.jsp";
 
@@ -657,6 +684,8 @@ public class Controlador extends HttpServlet {
             rd = getServletContext().getRequestDispatcher(ruta);
             rd.forward(request, response);
 
+        } catch (SQLException ex) {
+            Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             out.close();
         }

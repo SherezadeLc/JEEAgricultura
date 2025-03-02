@@ -210,7 +210,7 @@ public class Conexion extends HttpServlet {
 
     }
     
-    public boolean insertarCliente(String tipoMaquina) {
+    public boolean insertarMaquina(String tipoMaquina) {
         conectarBaseDatos(); // Asegurar conexión
          try {
             String sqlInsertar = "INSERT INTO maquina (tipo_maquina) VALUES (?)";
@@ -232,6 +232,134 @@ public class Conexion extends HttpServlet {
 
         
     }
+    public boolean agregarParcela(String idCatastro, String numeroParcela, String latitud, String longitud) {
+    conectarBaseDatos(); // Asegurar conexión
+
+    if (conexion == null) {
+        System.out.println("Error: conexión no establecida.");
+        return false;
+    }
+
+    try {
+        // Desactivar autocommit para manejar transacciones
+        conexion.setAutoCommit(false);
+
+        // Insertar en `parcela`
+        String sqlParcela = "INSERT INTO parcela (id_catastro, numero_parcela) VALUES (?, ?)";
+        PreparedStatement stmtParcela = conexion.prepareStatement(sqlParcela);
+        stmtParcela.setString(1, idCatastro);
+        stmtParcela.setString(2, numeroParcela);
+        stmtParcela.executeUpdate();
+
+        // Insertar en `puntos`
+        String sqlPuntos = "INSERT INTO puntos (numero_parcela, latitud, longitud) VALUES (?, ?, ?)";
+        PreparedStatement stmtPuntos = conexion.prepareStatement(sqlPuntos);
+        stmtPuntos.setString(1, numeroParcela);
+        stmtPuntos.setString(2, latitud);
+        stmtPuntos.setString(3, longitud);
+        stmtPuntos.executeUpdate();
+
+        // Confirmar la transacción
+        conexion.commit();
+
+        // Cerrar recursos
+        stmtParcela.close();
+        stmtPuntos.close();
+
+        return true;
+    } catch (SQLException e) {
+        try {
+            // Si hay error, deshacer la transacción
+            conexion.rollback();
+        } catch (SQLException rollbackEx) {
+            rollbackEx.printStackTrace();
+        }
+
+        e.printStackTrace();
+        return false;
+    } finally {
+        try {
+            // Reactivar autocommit
+            conexion.setAutoCommit(true);
+        } catch (SQLException autoCommitEx) {
+            autoCommitEx.printStackTrace();
+        }
+    }
+}
+    
+     // Método para verificar si existen puntos asociados a una parcela
+    public ResultSet verificarPuntosParcela(String idParcela, String dniCliente) {
+        ResultSet resultSet = null;
+        String query = "SELECT * FROM puntos_parcela WHERE id_parcela = ? AND dni_cliente = ?";
+        
+        try {
+            PreparedStatement preparedStatement = conexion.prepareStatement(query);
+            preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
+            preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
+            
+            resultSet = preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return resultSet;
+    }
+
+    // Método para eliminar el punto de asociación de la parcela
+    public boolean eliminarPuntoAsociado(String idParcela, String dniCliente) {
+        String query = "DELETE FROM puntos_parcela WHERE id_parcela = ? AND dni_cliente = ?";
+        boolean exito = false;
+
+        try {
+            PreparedStatement preparedStatement = conexion.prepareStatement(query);
+            preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
+            preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
+            
+            int filasAfectadas = preparedStatement.executeUpdate();
+            if (filasAfectadas > 0) {
+                exito = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return exito;
+    }
+
+    // Método para eliminar la parcela de la base de datos
+    public boolean eliminarParcela(String idParcela, String dniCliente) {
+        String query = "DELETE FROM parcela WHERE id_parcela = ? AND dni_cliente = ?";
+        boolean exito = false;
+
+        try {
+            PreparedStatement preparedStatement = conexion.prepareStatement(query);
+            preparedStatement.setString(1, idParcela);  // Establece el valor para id_parcela
+            preparedStatement.setString(2, dniCliente); // Establece el valor para dni_cliente
+            
+            int filasAfectadas = preparedStatement.executeUpdate();
+            if (filasAfectadas > 0) {
+                exito = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return exito;
+    }
+
+    // Cerrar la conexión a la base de datos
+    public void cerrarConexion() {
+        try {
+            if (conexion != null) {
+                conexion.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    
+    
     
     
     

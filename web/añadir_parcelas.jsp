@@ -72,18 +72,18 @@
         <div class="contenedor">
             <form method="POST" action="Controlador">
                 <label for="id_catastro">Número Catastro:</label><br>
-                <input type="text" name="id_catastro" id="id_catastro" required><br><br>
+                <input type="text" name="id_catastro" id="id_catastro" value=""><br><br>
 
                 <label for="numero_parcela">Número Parcela:</label><br>
-                <input type="text" name="numero_parcela" id="numero_parcela" required><br><br>
+                <input type="text" name="numero_parcela" id="numero_parcela"value="" ><br><br>
 
                 <label for="latitud">Latitud:</label><br>
-                <input type="text" name="latitud" id="latitud" required><br><br>
+                <input type="text" name="latitud" id="latitud"value="" ><br><br>
 
                 <label for="longitud">Longitud:</label><br>
-                <input type="text" name="longitud" id="longitud" required><br><br>
+                <input type="text" name="longitud" id="longitud"value="" ><br><br>
 
-                <button type="submit">Agregar Parcela</button><br><br>
+                <button type="submit" name="enviar" value="anadir_parcela">Agregar Parcela</button><br><br>
             </form>
 
             <%-- Mensajes de error o éxito --%>
