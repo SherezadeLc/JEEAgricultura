@@ -111,7 +111,35 @@ public class Controlador extends HttpServlet {
                 // Aseguramos que la ruta esté correcta
                 ruta = "/registro.jsp";
 
-            } else if ("Salir".equals(botonSeleccionado)) {
+            } else if ("Anadir_Agricultores".equals(botonSeleccionado)) {
+                // Aseguramos que la ruta esté correcta
+                ruta = "/añadir_agricultores.jsp";
+
+            }else if ("Listar_Clientes".equals(botonSeleccionado)) {
+                // Aseguramos que la ruta esté correcta
+                ruta = "/registro.jsp";
+
+            }else if ("Anadir_Maquinas".equals(botonSeleccionado)) {
+                // Aseguramos que la ruta esté correcta
+                ruta = "/añadir_maquina.jsp";
+
+            }else if ("Elegir_trabajo".equals(botonSeleccionado)) {
+                // Aseguramos que la ruta esté correcta
+                ruta = "/registro.jsp";
+
+            }else if ("Cambiar_contrasena".equals(botonSeleccionado)) {
+                // Aseguramos que la ruta esté correcta
+                ruta = "/registro.jsp";
+
+            }else if ("Anadir_parcelas".equals(botonSeleccionado)) {
+                // Aseguramos que la ruta esté correcta
+                ruta = "/añadir_parcelas.jsp";
+
+            }else if ("Crear_trabajo".equals(botonSeleccionado)) {
+                // Aseguramos que la ruta esté correcta
+                ruta = "/registro.jsp";
+
+            }  else if ("Cerrar_sesion".equals(botonSeleccionado)) {
                  session.invalidate();
                
                 // Aseguramos que la ruta esté correcta
