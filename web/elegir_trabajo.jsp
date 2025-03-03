@@ -82,7 +82,7 @@
                 <option value="">Seleccione un trabajo</option>
                 <%@ page import="java.util.List, es.agriculturaJ2EE.modelo.Trabajo" %>
                 <% List<Trabajo> trabajos = (List<Trabajo>) request.getAttribute("trabajosDisponibles");
-                   if (trabajos != null) {
+                   if (trabajos != null) {//
                        for (Trabajo trabajo : trabajos) { %>
                            <option value="<%= trabajo.getId() %>">
                                Trabajo #<%= trabajo.getId() %> - Parcela #<%= trabajo.getParcelaId() %> - <%= trabajo.getMaquinaId() %> - <%= trabajo.getDescripcion() %>
