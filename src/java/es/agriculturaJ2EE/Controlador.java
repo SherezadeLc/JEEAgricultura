@@ -154,7 +154,6 @@ public class Controlador extends HttpServlet {
                 ruta = "/añadir_agricultores.jsp";
             } else if ("Listar_Clientes".equals(botonSeleccionado)) {
                 String dniCliente = request.getParameter("id_cliente");
-                
 
                 if (dniCliente != null && !dniCliente.isEmpty()) { // Validación de DNI
                     ResultSet recogerClientes = conexion.editarCliente(dniCliente);
@@ -165,12 +164,12 @@ public class Controlador extends HttpServlet {
                         try {
                             while (recogerClientes.next()) {
                                 // Obtiene los datos reales de la base de datos
-                                
+
                                 String pidNombre = recogerClientes.getString("nombre");
                                 String piDni = recogerClientes.getString("ddni");
                                 String pidCatastro = recogerClientes.getString("id_catastro");
 
-                                Cliente datosClientes= new Cliente( pidNombre,piDni, pidCatastro);
+                                Cliente datosClientes = new Cliente(pidNombre, piDni, pidCatastro);
                                 todasClientes.add(datosClientes);
                             }
 
@@ -191,18 +190,6 @@ public class Controlador extends HttpServlet {
                 }
 
                 ruta = "/editar_parcela.jsp"; // Ruta para la página JSP
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
 
                 // Aseguramos que la ruta esté correcta
                 ruta = "/editar_clientes.jsp";
@@ -856,10 +843,23 @@ public class Controlador extends HttpServlet {
                 response.sendRedirect("login.jsp");
                 return;
             }
-
             Conexion conexion = new Conexion();
             int idAgricultor = conexion.obtenerIdAgricultorPorDni(dniAgricultor);
-            List<Trabajo> trabajosDisponibles = conexion.obtenerTrabajosDisponibles(idAgricultor);
+            List<Trabajo> trabajosDisponibles = conexion.obtenerTrabajosDisponibles(idAgricultor); // Ahora se asigna
+
+            System.out.println("Trabajos disponibles obtenidos: " + (trabajosDisponibles != null ? trabajosDisponibles.size() : "Lista nula"));
+
+            if (trabajosDisponibles != null) {
+                for (Trabajo t : trabajosDisponibles) {
+                    System.out.println("ID: " + t.getId() + ", Descripción: " + t.getDescripcion());
+                }
+            } else {
+                System.out.println("Error: trabajosDisponibles es null.");
+            }
+
+            /*Conexion conexion = new Conexion();
+            int idAgricultor = conexion.obtenerIdAgricultorPorDni(dniAgricultor);
+            List<Trabajo> trabajosDisponibles = conexion.obtenerTrabajosDisponibles(idAgricultor);*/
             List<Trabajo> trabajosAsignados = conexion.obtenerTrabajosAsignados(idAgricultor);
 
             request.setAttribute("trabajosDisponibles", trabajosDisponibles);

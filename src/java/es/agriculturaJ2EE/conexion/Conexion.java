@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -408,8 +409,27 @@ public class Conexion extends HttpServlet {
     }
 
     public List<Trabajo> obtenerTrabajosDisponibles(int idAgricultor) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    List<Trabajo> trabajos = new ArrayList<>();
+    String sql = "SELECT * FROM trabajo WHERE id_agricultor IS NULL";
+    
+    System.out.println("Ejecutando consulta SQL: " + sql);
+
+    try (Connection conn = this.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        ResultSet rs = stmt.executeQuery();
+
+        while (rs.next()) {
+            Trabajo t = new Trabajo(rs.getInt("id"), rs.getString("descripcion"));
+            trabajos.add(t);
+            System.out.println("Trabajo encontrado: ID=" + t.getId() + ", Descripción=" + t.getDescripcion());
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    System.out.println("Total trabajos obtenidos: " + trabajos.size());
+    return trabajos;
+}
+
 
     public List<Trabajo> obtenerTrabajosAsignados(int idAgricultor) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
