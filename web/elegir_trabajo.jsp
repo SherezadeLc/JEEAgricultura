@@ -81,6 +81,8 @@
             <select name="id_trabajo" id="id_trabajo" required>
                 <option value="">Seleccione un trabajo</option>
                 <%@ page import="java.util.List, es.agriculturaJ2EE.modelo.Trabajo" %>
+                <%@ page import="java.sql.*" %>
+
                 <% List<Trabajo> trabajos = (List<Trabajo>) request.getAttribute("trabajosDisponibles");
                    if (trabajos != null) {//
                        for (Trabajo trabajo : trabajos) { %>

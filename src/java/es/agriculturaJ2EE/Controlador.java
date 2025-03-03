@@ -7,6 +7,7 @@ import es.agriculturaJ2EE.modelo.Parcela;
 import es.agriculturaJ2EE.modelo.Trabajo;
 import java.io.IOException;
 import java.io.PrintWriter;
+import static java.lang.System.out;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -210,7 +211,7 @@ public class Controlador extends HttpServlet {
                     return; // Detiene la ejecución del método
                 }
                 boolean comprobar = conexion.insertarMaquina(tipoMaquina);
-            if (comprobar) {
+                if (comprobar) {
                     session.setAttribute("registroMensaje", "La maquina nueva " + tipoMaquina + " fue guardado correctamente");
                     // Aseguramos que la ruta esté correcta
                     ruta = "/añadir_maquina.jsp";
@@ -838,7 +839,41 @@ public class Controlador extends HttpServlet {
         protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
             HttpSession session = request.getSession();
             String dniAgricultor = (String) session.getAttribute("dni");
+            Connection con = null;
+            PreparedStatement pst = null;
+            ResultSet rs = null;
 
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                con = DriverManager.getConnection("jdbc:mysql://localhost:3306/agriculturaj2ee", "root", "");
+
+                String query = "SELECT COUNT(*) AS total FROM trabajo WHERE estado = 'pendiente'";
+                pst = con.prepareStatement(query);
+                rs = pst.executeQuery();
+
+                if (rs.next()) {
+                    out.println("<p>Trabajos pendientes: " + rs.getInt("total") + "</p>");
+                } else {
+                    out.println("<p>No hay trabajos pendientes.</p>");
+                }
+            } catch (Exception e) {
+                out.println("<p>Error: " + e.getMessage() + "</p>");
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (rs != null) {
+                        rs.close();
+                    }
+                    if (pst != null) {
+                        pst.close();
+                    }
+                    if (con != null) {
+                        con.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             if (dniAgricultor == null) {
                 response.sendRedirect("login.jsp");
                 return;
