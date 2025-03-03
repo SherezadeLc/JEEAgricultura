@@ -410,7 +410,7 @@ public class Conexion extends HttpServlet {
 
     public List<Trabajo> obtenerTrabajosDisponibles(int idAgricultor) {
     List<Trabajo> trabajos = new ArrayList<>();
-    String sql = "SELECT * FROM trabajo WHERE id_agricultor IS NULL";
+   String sql = "SELECT id_trabajo, tipo_trabajo FROM trabajo WHERE estado = 'pendiente'";
     
     System.out.println("Ejecutando consulta SQL: " + sql);
 

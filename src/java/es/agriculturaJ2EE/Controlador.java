@@ -210,7 +210,7 @@ public class Controlador extends HttpServlet {
                     return; // Detiene la ejecución del método
                 }
                 boolean comprobar = conexion.insertarMaquina(tipoMaquina);
-                if (comprobar) {
+            if (comprobar) {
                     session.setAttribute("registroMensaje", "La maquina nueva " + tipoMaquina + " fue guardado correctamente");
                     // Aseguramos que la ruta esté correcta
                     ruta = "/añadir_maquina.jsp";
